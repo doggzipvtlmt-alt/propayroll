@@ -1,53 +1,57 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
-from app.core.db import db
-from app.models.common import oid_str, parse_objectid
+from fastapi import APIRouter, Request, Query
+from app.schemas.employees import EmployeeCreate, EmployeeUpdate
+from app.schemas.response import SuccessResponse
+from app.utils.pagination import normalize_pagination
+from app.core.responses import ok
+from app.services.employees_service import EmployeesService
 
 router = APIRouter(prefix="/api/employees", tags=["Employees"])
+svc = EmployeesService()
 
-class EmployeeIn(BaseModel):
-    employee_code: str
-    full_name: str
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    department: Optional[str] = None
-    designation: Optional[str] = None
-    manager_name: Optional[str] = None
-    join_date: Optional[str] = None
-    status: str = "active"
+@router.get("", response_model=SuccessResponse)
+def list_employees(
+    request: Request,
+    search: str | None = None,
+    department: str | None = None,
+    designation: str | None = None,
+    status: str | None = None,
+    page: int | None = Query(default=1),
+    page_size: int | None = Query(default=10),
+    sort_by: str | None = Query(default="full_name"),
+    sort_dir: str | None = Query(default="asc"),
+):
+    q = {}
+    if search:
+        q["full_name"] = {"": search, "": "i"}
+    if department:
+        q["department"] = department
+    if designation:
+        q["designation"] = designation
+    if status:
+        q["status"] = status
 
-@router.get("", response_model=List[dict])
-def list_employees():
-    docs = list(db.employees.find().sort("full_name", 1))
-    return [oid_str(d) for d in docs]
+    page, page_size, skip = normalize_pagination(page, page_size)
+    sort = [(sort_by, 1 if sort_dir.lower() == "asc" else -1)]
 
-@router.get("/{id}", response_model=dict)
-def get_employee(id: str):
-    doc = db.employees.find_one({"_id": parse_objectid(id)})
-    if not doc:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return oid_str(doc)
+    items, total = svc.list(request, q, skip, page_size, sort)
+    return ok({"items": items, "page": page, "page_size": page_size, "total": total}, request.state.request_id)
 
-@router.post("", response_model=dict)
-def create_employee(payload: EmployeeIn):
-    if db.employees.find_one({"employee_code": payload.employee_code}):
-        raise HTTPException(status_code=409, detail="employee_code already exists")
-    res = db.employees.insert_one(payload.model_dump())
-    doc = db.employees.find_one({"_id": res.inserted_id})
-    return oid_str(doc)
+@router.get("/{id}", response_model=SuccessResponse)
+def get_employee(request: Request, id: str):
+    doc = svc.get(request, id)
+    return ok(doc, request.state.request_id)
 
-@router.put("/{id}", response_model=dict)
-def update_employee(id: str, payload: EmployeeIn):
-    res = db.employees.update_one({"_id": parse_objectid(id)}, {"": payload.model_dump()})
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    doc = db.employees.find_one({"_id": parse_objectid(id)})
-    return oid_str(doc)
+@router.post("", response_model=SuccessResponse)
+def create_employee(request: Request, payload: EmployeeCreate):
+    doc = svc.create(request, payload.model_dump())
+    return ok(doc, request.state.request_id)
 
-@router.delete("/{id}", response_model=dict)
-def delete_employee(id: str):
-    res = db.employees.delete_one({"_id": parse_objectid(id)})
-    if res.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return {"ok": True}
+@router.put("/{id}", response_model=SuccessResponse)
+def update_employee(request: Request, id: str, payload: EmployeeUpdate):
+    doc = svc.update(request, id, payload.model_dump())
+    return ok(doc, request.state.request_id)
+
+@router.delete("/{id}", response_model=SuccessResponse)
+def delete_employee(request: Request, id: str):
+    svc.delete(request, id)
+    return ok({"deleted": True}, request.state.request_id)
