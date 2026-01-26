@@ -59,6 +59,10 @@ def ensure_indexes():
     # roles
     db.roles.create_index([("company_id", ASCENDING), ("key", ASCENDING)], unique=True)
 
+    # sessions
+    db.sessions.create_index([("token_hash", ASCENDING)], unique=True)
+    db.sessions.create_index([("expires_at", ASCENDING)])
+
     # approvals
     db.approvals.create_index([("company_id", ASCENDING)])
     db.approvals.create_index([("company_id", ASCENDING), ("entity_type", ASCENDING), ("entity_id", ASCENDING)], unique=True)

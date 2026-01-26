@@ -20,6 +20,7 @@ from app.routes.approvals import router as approvals_router
 from app.routes.notifications import router as notifications_router
 from app.routes.vault import router as vault_router
 from app.routes.audit import router as audit_router
+from app.routes.auth import router as auth_router
 
 setup_logging()
 logger = get_logger("app")
@@ -52,6 +53,7 @@ app.include_router(approvals_router)
 app.include_router(notifications_router)
 app.include_router(vault_router)
 app.include_router(audit_router)
+app.include_router(auth_router)
 
 @app.on_event("startup")
 def on_startup():

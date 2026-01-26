@@ -4,36 +4,27 @@ from app.core.errors import Forbidden
 ROLE_PERMISSIONS = {
     "MD": ["*"],
     "HR": [
-        "employees:read",
-        "employees:write",
-        "leaves:read",
-        "leaves:write",
-        "leaves:approve",
+        "employees:*",
+        "leaves:*",
         "attendance:read",
-        "vault:read",
-        "vault:write",
     ],
     "FINANCE": [
-        "finance:read",
-        "finance:write",
-        "payroll:read",
-        "payroll:write",
+        "finance:*",
+        "payroll:*",
         "employees:read",
     ],
     "ADMIN": [
-        "admin:read",
-        "admin:write",
-        "attendance:read",
-        "attendance:write",
+        "admin:*",
         "employees:read",
+        "audit:read",
     ],
     "EMPLOYEE": [
-        "employees:read",
         "leaves:read",
         "leaves:write",
         "attendance:read",
         "vault:read",
         "vault:write",
+        "payslip:read",
     ],
 }
 
