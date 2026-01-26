@@ -6,7 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.config import settings
 from app.core.errors import Unauthorized
 from app.core.logging import get_logger, request_id_filter
-from app.core.security import get_bearer_token, hash_token, get_role
+from app.core.security import get_bearer_token, hash_token
 from app.repositories.sessions_repo import SessionsRepo
 
 logger = get_logger("middleware")
@@ -23,7 +23,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         request_id_filter.request_id = request_id
 
-        self._apply_auth(request)
+        if not self._is_exempt_path(request.method.upper(), request.url.path):
+            self._apply_auth(request)
         role = getattr(request.state, "role", "EMPLOYEE")
         company_id = getattr(request.state, "company_id", None)
         user_id = getattr(request.state, "user_id", None)
@@ -43,49 +44,36 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     def _apply_auth(self, request: Request) -> None:
         path = request.url.path
         method = request.method.upper()
-        if self._is_exempt_path(method, path):
-            request.state.company_id = None
-            request.state.user_id = None
-            request.state.role = "EMPLOYEE"
+        if not path.startswith("/api"):
             return
 
+        auth_header = request.headers.get("Authorization")
         token = get_bearer_token(request)
-        if token:
-            token_hash = hash_token(token)
-            repo = SessionsRepo()
-            session = repo.get_by_token_hash(token_hash)
-            if not session:
-                raise Unauthorized("Invalid or expired session")
-            expires_at = session.get("expires_at")
-            if isinstance(expires_at, datetime):
-                if expires_at < datetime.now(timezone.utc):
-                    repo.delete_by_token_hash(token_hash)
-                    raise Unauthorized("Session expired")
-            request.state.company_id = session.get("company_id")
-            request.state.user_id = session.get("user_id")
-            request.state.role = (session.get("role_key") or "EMPLOYEE").upper()
-            request.state.session_id = session.get("id")
-            user_agent = request.headers.get("User-Agent")
-            ip = request.client.host if request.client else None
-            repo.touch(token_hash, user_agent, ip)
-            return
-
-        if settings.DEV_MODE:
-            company_id = request.headers.get("X-COMPANY-ID")
-            user_id = request.headers.get("X-USER-ID")
-            role = request.headers.get("X-ROLE")
-            if company_id or user_id or role:
-                request.state.company_id = company_id
-                request.state.user_id = user_id
-                request.state.role = (role or "EMPLOYEE").upper()
-                request.state.role = get_role(request)
-                return
-
-        request.state.company_id = None
-        request.state.user_id = None
-        request.state.role = "EMPLOYEE"
-        if path.startswith("/api"):
+        if not token:
+            reason = "invalid token" if auth_header else "missing token"
+            logger.info("Denied request method=%s path=%s reason=%s", method, path, reason)
             raise Unauthorized("Authentication required")
+
+        token_hash = hash_token(token)
+        repo = SessionsRepo()
+        session = repo.get_by_token_hash(token_hash)
+        if not session:
+            logger.info("Denied request method=%s path=%s reason=invalid token", method, path)
+            raise Unauthorized("Invalid or expired session")
+        expires_at = session.get("expires_at")
+        if isinstance(expires_at, datetime):
+            if expires_at < datetime.now(timezone.utc):
+                repo.delete_by_token_hash(token_hash)
+                logger.info("Denied request method=%s path=%s reason=invalid token", method, path)
+                raise Unauthorized("Session expired")
+        request.state.company_id = session.get("company_id")
+        request.state.user_id = session.get("user_id")
+        request.state.role = (session.get("role_key") or "EMPLOYEE").upper()
+        request.state.session_id = session.get("id")
+        user_agent = request.headers.get("User-Agent")
+        ip = request.client.host if request.client else None
+        repo.touch(token_hash, user_agent, ip)
+        return
 
     def _is_exempt_path(self, method: str, path: str) -> bool:
         if (method, path) in EXEMPT_PATHS:
