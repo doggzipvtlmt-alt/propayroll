@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import re
 from app.core.db import require_db
 from app.utils.oid import to_objectid, with_id
 
@@ -19,6 +20,11 @@ class UsersRepo:
 
     def find_by_email(self, company_id: str, email: str):
         doc = self.db.users.find_one({"company_id": company_id, "email": email})
+        return with_id(doc) if doc else None
+
+    def find_by_email_case_insensitive(self, email: str):
+        regex = f"^{re.escape(email)}$"
+        doc = self.db.users.find_one({"email": {"$regex": regex, "$options": "i"}})
         return with_id(doc) if doc else None
 
     def create(self, data: dict):

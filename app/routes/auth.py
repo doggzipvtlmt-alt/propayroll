@@ -13,7 +13,7 @@ svc = AuthService()
 def login(request: Request, payload: LoginRequest):
     user_agent = request.headers.get("User-Agent")
     ip = request.client.host if request.client else None
-    data = svc.login(payload.company_id, payload.identifier, payload.dob_or_pin, user_agent, ip)
+    data = svc.login(payload.email, payload.password, user_agent, ip)
     return ok(data, request.state.request_id)
 
 

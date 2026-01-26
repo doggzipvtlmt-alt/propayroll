@@ -43,22 +43,22 @@ def ensure_roles(db, company_id: str):
         })
 
 
-def ensure_user(db, company_id: str, full_name: str, email: str, role_key: str, pin: str | None = None, dob: str | None = None):
-    existing = db.users.find_one({"company_id": company_id, "email": email})
+def ensure_user(db, company_id: str, full_name: str, email: str, role_key: str, password: str):
+    normalized_email = email.lower()
+    existing = db.users.find_one({"company_id": company_id, "email": normalized_email})
     if existing:
         return existing
-    pin_meta = hash_secret(pin) if pin else {}
+    password_meta = hash_secret(password)
     res = db.users.insert_one({
         "company_id": company_id,
         "full_name": full_name,
-        "email": email,
+        "email": normalized_email,
         "phone": None,
         "role_key": role_key,
         "status": "active",
-        "dob": dob,
-        "pin_hash": pin_meta.get("hash"),
-        "pin_salt": pin_meta.get("salt"),
-        "pin_iterations": pin_meta.get("iterations"),
+        "password_hash": password_meta.get("hash"),
+        "password_salt": password_meta.get("salt"),
+        "password_iterations": password_meta.get("iterations"),
         "created_at": now_iso(),
         "updated_at": now_iso(),
     })
@@ -185,12 +185,12 @@ def main():
 
     ensure_roles(db, company_id)
 
-    md_user = ensure_user(db, company_id, "Meera Doggzi", "md@doggzi.example", "MD", pin="1234")
-    hr_user = ensure_user(db, company_id, "Harsha HR", "hr@doggzi.example", "HR", pin="2345")
-    finance_user = ensure_user(db, company_id, "Finley Finance", "finance@doggzi.example", "FINANCE", pin="3456")
-    admin_user = ensure_user(db, company_id, "Aarav Admin", "admin@doggzi.example", "ADMIN", pin="4567")
-    emp_one = ensure_user(db, company_id, "Esha Employee", "employee1@doggzi.example", "EMPLOYEE", dob="1994-04-12")
-    emp_two = ensure_user(db, company_id, "Ravi Employee", "employee2@doggzi.example", "EMPLOYEE", dob="1992-09-08")
+    md_user = ensure_user(db, company_id, "Meera Doggzi", "md@doggzi.com", "MD", password="Md@12345")
+    hr_user = ensure_user(db, company_id, "Harsha HR", "hr@doggzi.com", "HR", password="Hr@12345")
+    finance_user = ensure_user(db, company_id, "Finley Finance", "finance@doggzi.com", "FINANCE", password="Fin@12345")
+    admin_user = ensure_user(db, company_id, "Aarav Admin", "admin@doggzi.com", "ADMIN", password="Admin@12345")
+    emp_one = ensure_user(db, company_id, "Esha Employee", "emp1@doggzi.com", "EMPLOYEE", password="Emp@12345")
+    emp_two = ensure_user(db, company_id, "Ravi Employee", "emp2@doggzi.com", "EMPLOYEE", password="Emp@12345")
 
     ensure_employee(db, company_id, "EMP-1001", "Esha Employee", str(emp_one["_id"]), dob="1994-04-12")
     ensure_employee(db, company_id, "EMP-1002", "Ravi Employee", str(emp_two["_id"]), dob="1992-09-08")
@@ -210,6 +210,13 @@ def main():
     print("Notifications:", db.notifications.count_documents({}))
     print("Approvals:", db.approvals.count_documents({}))
     print("Leave requests:", db.leave_requests.count_documents({}))
+    print("Seeded login credentials (dev only):")
+    print("MD: md@doggzi.com / Md@12345")
+    print("HR: hr@doggzi.com / Hr@12345")
+    print("FINANCE: finance@doggzi.com / Fin@12345")
+    print("ADMIN: admin@doggzi.com / Admin@12345")
+    print("EMPLOYEE1: emp1@doggzi.com / Emp@12345")
+    print("EMPLOYEE2: emp2@doggzi.com / Emp@12345")
 
 
 if __name__ == "__main__":
