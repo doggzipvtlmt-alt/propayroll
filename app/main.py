@@ -58,7 +58,10 @@ def on_startup():
     connect()
     if not ping():
         logger.error("Mongo ping failed on startup")
-        raise DatabaseDown("Mongo is not reachable")
+        if settings.MONGO_STARTUP_STRICT:
+            raise DatabaseDown("Mongo is not reachable")
+        logger.warning("Continuing startup without Mongo due to MONGO_STARTUP_STRICT=false")
+        return
     ensure_indexes()
     logger.info("Startup OK - Mongo connected and indexes ensured")
 

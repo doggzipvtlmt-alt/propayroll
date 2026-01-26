@@ -11,6 +11,7 @@ class Settings:
 
     MONGO_URI: str | None = os.getenv("MONGO_URI")
     MONGO_DB: str = os.getenv("MONGO_DB", "hrms")
+    MONGO_STARTUP_STRICT: bool = os.getenv("MONGO_STARTUP_STRICT", "true").lower() == "true"
 
     REQUEST_TIMEOUT_MS: int = int(os.getenv("REQUEST_TIMEOUT_MS", "10000"))
 
