@@ -1,53 +1,48 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List
-from app.core.db import db
-from app.models.common import oid_str, parse_objectid
+from fastapi import APIRouter, Request, Query
+from app.core.permissions import require_permission
+from app.core.responses import ok
+from app.schemas.leaves import LeaveCreate, LeaveDecision
+from app.schemas.response import SuccessResponse
+from app.utils.pagination import normalize_pagination
+from app.services.leaves_service import LeavesService
 
 router = APIRouter(prefix="/api/leaves", tags=["Leaves"])
+svc = LeavesService()
 
-class LeaveIn(BaseModel):
-    employee_id: str
-    employee_name: Optional[str] = None
-    leave_type: str
-    start_date: str
-    end_date: str
-    reason: Optional[str] = None
-    status: str = "pending"
-    approver_comment: Optional[str] = None
-
-@router.get("", response_model=List[dict])
-def list_leaves(status: Optional[str] = None):
-    q = {}
+@router.get("", response_model=SuccessResponse)
+def list_leaves(
+    request: Request,
+    status: str | None = None,
+    employee_id: str | None = None,
+    page: int | None = Query(default=1),
+    page_size: int | None = Query(default=10),
+):
+    require_permission(request, "leaves:read")
+    q: dict = {}
     if status:
         q["status"] = status
-    docs = list(db.leave_requests.find(q).sort("start_date", -1))
-    return [oid_str(d) for d in docs]
+    if employee_id:
+        q["employee_id"] = employee_id
+    page, page_size, skip = normalize_pagination(page, page_size)
+    items, total = svc.list(request, q, skip, page_size, [("start_date", -1)])
+    return ok({"items": items, "page": page, "page_size": page_size, "total": total}, request.state.request_id)
 
-@router.post("", response_model=dict)
-def apply_leave(payload: LeaveIn):
-    res = db.leave_requests.insert_one(payload.model_dump())
-    doc = db.leave_requests.find_one({"_id": res.inserted_id})
-    return oid_str(doc)
+@router.post("", response_model=SuccessResponse)
+def apply_leave(request: Request, payload: LeaveCreate):
+    require_permission(request, "leaves:write")
+    doc = svc.create(request, payload.model_dump())
+    return ok(doc, request.state.request_id)
 
-@router.put("/{id}/approve", response_model=dict)
-def approve_leave(id: str, comment: Optional[str] = None):
-    res = db.leave_requests.update_one(
-        {"_id": parse_objectid(id)},
-        {"": {"status": "approved", "approver_comment": comment or ""}}
-    )
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Leave request not found")
-    doc = db.leave_requests.find_one({"_id": parse_objectid(id)})
-    return oid_str(doc)
+@router.put("/{id}/approve", response_model=SuccessResponse)
+def approve_leave(request: Request, id: str, payload: LeaveDecision | None = None, comment: str | None = None):
+    require_permission(request, "leaves:approve")
+    final_comment = payload.comment if payload else comment
+    doc = svc.approve(request, id, final_comment)
+    return ok(doc, request.state.request_id)
 
-@router.put("/{id}/reject", response_model=dict)
-def reject_leave(id: str, comment: Optional[str] = None):
-    res = db.leave_requests.update_one(
-        {"_id": parse_objectid(id)},
-        {"": {"status": "rejected", "approver_comment": comment or ""}}
-    )
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Leave request not found")
-    doc = db.leave_requests.find_one({"_id": parse_objectid(id)})
-    return oid_str(doc)
+@router.put("/{id}/reject", response_model=SuccessResponse)
+def reject_leave(request: Request, id: str, payload: LeaveDecision | None = None, comment: str | None = None):
+    require_permission(request, "leaves:approve")
+    final_comment = payload.comment if payload else comment
+    doc = svc.reject(request, id, final_comment)
+    return ok(doc, request.state.request_id)

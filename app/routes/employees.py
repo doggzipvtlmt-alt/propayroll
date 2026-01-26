@@ -3,6 +3,7 @@ from app.schemas.employees import EmployeeCreate, EmployeeUpdate
 from app.schemas.response import SuccessResponse
 from app.utils.pagination import normalize_pagination
 from app.core.responses import ok
+from app.core.permissions import require_permission
 from app.services.employees_service import EmployeesService
 
 router = APIRouter(prefix="/api/employees", tags=["Employees"])
@@ -20,9 +21,10 @@ def list_employees(
     sort_by: str | None = Query(default="full_name"),
     sort_dir: str | None = Query(default="asc"),
 ):
+    require_permission(request, "employees:read")
     q = {}
     if search:
-        q["full_name"] = {"": search, "": "i"}
+        q["full_name"] = {"$regex": search, "$options": "i"}
     if department:
         q["department"] = department
     if designation:
@@ -38,20 +40,24 @@ def list_employees(
 
 @router.get("/{id}", response_model=SuccessResponse)
 def get_employee(request: Request, id: str):
+    require_permission(request, "employees:read")
     doc = svc.get(request, id)
     return ok(doc, request.state.request_id)
 
 @router.post("", response_model=SuccessResponse)
 def create_employee(request: Request, payload: EmployeeCreate):
+    require_permission(request, "employees:write")
     doc = svc.create(request, payload.model_dump())
     return ok(doc, request.state.request_id)
 
 @router.put("/{id}", response_model=SuccessResponse)
 def update_employee(request: Request, id: str, payload: EmployeeUpdate):
+    require_permission(request, "employees:write")
     doc = svc.update(request, id, payload.model_dump())
     return ok(doc, request.state.request_id)
 
 @router.delete("/{id}", response_model=SuccessResponse)
 def delete_employee(request: Request, id: str):
+    require_permission(request, "employees:write")
     svc.delete(request, id)
     return ok({"deleted": True}, request.state.request_id)

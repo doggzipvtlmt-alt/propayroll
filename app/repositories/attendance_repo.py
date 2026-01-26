@@ -19,7 +19,7 @@ class AttendanceRepo:
         data["updated_at"] = now
         data.setdefault("created_at", now)
 
-        key = {"date": data["date"], "employee_id": data["employee_id"]}
-        self.db.attendance.update_one(key, {"": data}, upsert=True)
+        key = {"company_id": data["company_id"], "date": data["date"], "employee_id": data["employee_id"]}
+        self.db.attendance.update_one(key, {"$set": data}, upsert=True)
         doc = self.db.attendance.find_one(key)
         return with_id(doc)

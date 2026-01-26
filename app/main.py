@@ -7,11 +7,19 @@ from app.core.middleware import RequestContextMiddleware
 from app.core.db import connect, ensure_indexes, ping
 from app.core.errors import AppError, DatabaseDown
 from app.core.responses import ok, err
+from app.schemas.response import SuccessResponse
 
 from app.routes import employees, leaves
 from app.routes.attendance import router as attendance_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.meta import router as meta_router
+from app.routes.companies import router as companies_router
+from app.routes.roles import router as roles_router
+from app.routes.users import router as users_router
+from app.routes.approvals import router as approvals_router
+from app.routes.notifications import router as notifications_router
+from app.routes.vault import router as vault_router
+from app.routes.audit import router as audit_router
 
 setup_logging()
 logger = get_logger("app")
@@ -37,6 +45,13 @@ app.include_router(leaves.router)
 app.include_router(attendance_router)
 app.include_router(dashboard_router)
 app.include_router(meta_router)
+app.include_router(companies_router)
+app.include_router(roles_router)
+app.include_router(users_router)
+app.include_router(approvals_router)
+app.include_router(notifications_router)
+app.include_router(vault_router)
+app.include_router(audit_router)
 
 @app.on_event("startup")
 def on_startup():
@@ -47,11 +62,11 @@ def on_startup():
     ensure_indexes()
     logger.info("Startup OK - Mongo connected and indexes ensured")
 
-@app.get("/")
+@app.get("/", response_model=SuccessResponse)
 def root(request: Request):
-    return {"ok": True, "service": settings.APP_NAME}
+    return ok({"service": settings.APP_NAME}, request.state.request_id)
 
-@app.get("/health")
+@app.get("/health", response_model=SuccessResponse)
 def health(request: Request):
     healthy = ping()
     return ok({"mongo": healthy, "env": settings.ENV}, request.state.request_id)
