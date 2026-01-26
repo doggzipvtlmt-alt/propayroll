@@ -1,9 +1,12 @@
 import time
 import uuid
+from datetime import datetime, timezone
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.core.errors import Unauthorized
 from app.core.logging import get_logger, request_id_filter
-from app.core.security import get_role, get_company_id, get_user_id
+from app.core.security import get_bearer_token, hash_token, get_role
+from app.repositories.sessions_repo import SessionsRepo
 
 logger = get_logger("middleware")
 
@@ -13,12 +16,10 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         request_id_filter.request_id = request_id
 
-        role = get_role(request)
-        company_id = get_company_id(request)
-        user_id = get_user_id(request)
-        request.state.role = role
-        request.state.company_id = company_id
-        request.state.user_id = user_id
+        self._apply_auth(request)
+        role = getattr(request.state, "role", "EMPLOYEE")
+        company_id = getattr(request.state, "company_id", None)
+        user_id = getattr(request.state, "user_id", None)
 
         start = time.time()
         try:
@@ -31,3 +32,39 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
         response.headers["X-Request-ID"] = request_id
         return response
+
+    def _apply_auth(self, request: Request) -> None:
+        token = get_bearer_token(request)
+        if token:
+            token_hash = hash_token(token)
+            repo = SessionsRepo()
+            session = repo.get_by_token_hash(token_hash)
+            if not session:
+                raise Unauthorized("Invalid or expired session")
+            expires_at = session.get("expires_at")
+            if isinstance(expires_at, datetime):
+                if expires_at < datetime.now(timezone.utc):
+                    repo.delete_by_token_hash(token_hash)
+                    raise Unauthorized("Session expired")
+            request.state.company_id = session.get("company_id")
+            request.state.user_id = session.get("user_id")
+            request.state.role = (session.get("role_key") or "EMPLOYEE").upper()
+            request.state.session_id = session.get("id")
+            user_agent = request.headers.get("User-Agent")
+            ip = request.client.host if request.client else None
+            repo.touch(token_hash, user_agent, ip)
+            request.state.role = get_role(request)
+            return
+
+        company_id = request.headers.get("X-COMPANY-ID")
+        user_id = request.headers.get("X-USER-ID")
+        role = request.headers.get("X-ROLE")
+        if company_id or user_id or role:
+            request.state.company_id = company_id
+            request.state.user_id = user_id
+            request.state.role = (role or "EMPLOYEE").upper()
+            request.state.role = get_role(request)
+        else:
+            request.state.company_id = None
+            request.state.user_id = None
+            request.state.role = "EMPLOYEE"

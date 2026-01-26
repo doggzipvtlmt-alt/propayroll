@@ -28,3 +28,7 @@ class CompaniesRepo:
         data["updated_at"] = datetime.now(timezone.utc).isoformat()
         res = self.db.companies.update_one({"_id": to_objectid(id)}, {"$set": data})
         return res.matched_count, self.get(id)
+
+    def delete(self, id: str):
+        res = self.db.companies.delete_one({"_id": to_objectid(id)})
+        return res.deleted_count

@@ -38,3 +38,12 @@ class CompaniesService:
             raise NotFound("Company not found")
         audit(request, "UPDATE", "company", id, {"name": doc.get("name")})
         return doc
+
+    def delete(self, request, id: str):
+        require_user_id(request)
+        repo = CompaniesRepo()
+        deleted = repo.delete(id)
+        if deleted == 0:
+            raise NotFound("Company not found")
+        audit(request, "DELETE", "company", id)
+        return True

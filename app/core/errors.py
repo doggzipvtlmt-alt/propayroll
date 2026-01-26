@@ -38,3 +38,7 @@ class MissingHeader(AppError):
 class Forbidden(AppError):
     status_code = 403
     code = "FORBIDDEN"
+
+class Unauthorized(AppError):
+    status_code = 401
+    code = "UNAUTHORIZED"

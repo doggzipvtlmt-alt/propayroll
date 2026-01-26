@@ -18,6 +18,10 @@ class EmployeesRepo:
         doc = self.db.employees.find_one({"_id": to_objectid(id), "company_id": company_id})
         return with_id(doc) if doc else None
 
+    def find_by_code(self, company_id: str, employee_code: str):
+        doc = self.db.employees.find_one({"company_id": company_id, "employee_code": employee_code})
+        return with_id(doc) if doc else None
+
     def create(self, data: dict):
         now = datetime.now(timezone.utc).isoformat()
         data["created_at"] = now

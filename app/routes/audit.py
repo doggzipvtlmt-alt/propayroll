@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Query
-from app.core.errors import Forbidden
+from app.core.permissions import require_permission
 from app.core.responses import ok
 from app.schemas.response import SuccessResponse
 from app.utils.pagination import normalize_pagination
@@ -16,9 +16,7 @@ def list_audit_logs(
     limit: int | None = Query(default=20),
     page: int | None = Query(default=1),
 ):
-    role = getattr(request.state, "role", "EMPLOYEE")
-    if role not in {"MD", "ADMIN"}:
-        raise Forbidden("You do not have permission to view audit logs")
+    require_permission(request, "audit:read")
     page, page_size, skip = normalize_pagination(page, limit)
     q: dict = {}
     if entity_type:

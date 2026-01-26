@@ -17,6 +17,10 @@ class UsersRepo:
         doc = self.db.users.find_one({"_id": to_objectid(id), "company_id": company_id})
         return with_id(doc) if doc else None
 
+    def find_by_email(self, company_id: str, email: str):
+        doc = self.db.users.find_one({"company_id": company_id, "email": email})
+        return with_id(doc) if doc else None
+
     def create(self, data: dict):
         now = datetime.now(timezone.utc).isoformat()
         data["created_at"] = now

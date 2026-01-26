@@ -39,8 +39,9 @@ class LeavesService:
 
         users_repo = UsersRepo()
         hr_users = users_repo.list({"company_id": company_id, "role_key": "HR", "status": "active"}, 0, 500)
+        md_users = users_repo.list({"company_id": company_id, "role_key": "MD", "status": "active"}, 0, 500)
         notifications = []
-        for hr_user in hr_users:
+        for hr_user in hr_users + md_users:
             notifications.append({
                 "company_id": company_id,
                 "user_id": hr_user["id"],

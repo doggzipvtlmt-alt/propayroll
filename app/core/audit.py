@@ -8,6 +8,7 @@ def audit(request, action: str, entity_type: str, entity_id: Optional[str] = Non
     request_id = request.state.request_id if hasattr(request.state, "request_id") else "-"
     company_id = getattr(request.state, "company_id", None)
     user_id = getattr(request.state, "user_id", None)
+    diff_summary = metadata or {}
     db.audit_logs.insert_one({
         "ts": datetime.now(timezone.utc).isoformat(),
         "request_id": request_id,
@@ -17,5 +18,6 @@ def audit(request, action: str, entity_type: str, entity_id: Optional[str] = Non
         "action": action,
         "entity_type": entity_type,
         "entity_id": entity_id,
+        "diff_summary": diff_summary,
         "metadata": metadata or {},
     })
