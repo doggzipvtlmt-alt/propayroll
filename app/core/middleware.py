@@ -11,7 +11,7 @@ from app.repositories.sessions_repo import SessionsRepo
 
 logger = get_logger("middleware")
 
-EXEMPT_PATHS = {
+PUBLIC_ALLOWLIST = {
     ("GET", "/"),
     ("GET", "/health"),
     ("POST", "/api/auth/login"),
@@ -23,7 +23,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         request_id_filter.request_id = request_id
 
-        if not self._is_exempt_path(request.method.upper(), request.url.path):
+        if not self._is_public_request(request.method.upper(), request.url.path):
             self._apply_auth(request)
         role = getattr(request.state, "role", "EMPLOYEE")
         company_id = getattr(request.state, "company_id", None)
@@ -64,7 +64,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         if isinstance(expires_at, datetime):
             if expires_at < datetime.now(timezone.utc):
                 repo.delete_by_token_hash(token_hash)
-                logger.info("Denied request method=%s path=%s reason=invalid token", method, path)
+                logger.info("Denied request method=%s path=%s reason=expired session", method, path)
                 raise Unauthorized("Session expired")
         request.state.company_id = session.get("company_id")
         request.state.user_id = session.get("user_id")
@@ -75,8 +75,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         repo.touch(token_hash, user_agent, ip)
         return
 
-    def _is_exempt_path(self, method: str, path: str) -> bool:
-        if (method, path) in EXEMPT_PATHS:
+    def _is_public_request(self, method: str, path: str) -> bool:
+        if (method, path) in PUBLIC_ALLOWLIST:
             return True
         if settings.ENV.lower() not in {"prod", "production"} and method == "GET" and path in {"/docs", "/openapi.json"}:
             return True

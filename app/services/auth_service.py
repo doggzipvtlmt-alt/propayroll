@@ -12,18 +12,31 @@ SESSION_TTL_DAYS = 7
 
 class AuthService:
     def login(self, email: str, password: str, user_agent: str | None, ip: str | None):
+        user, reason = self.validate_login(email, password)
+        if reason == "inactive":
+            raise Unauthorized("User is inactive")
+        if reason:
+            raise Unauthorized("Invalid credentials")
+        return self._issue_session(user, user_agent, ip)
+
+    def login_with_user(self, user: dict, user_agent: str | None, ip: str | None) -> dict:
+        return self._issue_session(user, user_agent, ip)
+
+    def validate_login(self, email: str, password: str) -> tuple[dict | None, str | None]:
         user = self._find_user(email)
         if not user:
-            raise Unauthorized("Invalid credentials")
+            return None, "user_not_found"
         if not user.get("company_id") or not user.get("role_key"):
-            raise Unauthorized("Invalid credentials")
+            return None, "invalid_profile"
         if not user.get("password_hash") or not user.get("password_salt"):
-            raise Unauthorized("Invalid credentials")
+            return None, "invalid_credentials"
         if user.get("status") != "active":
-            raise Unauthorized("User is inactive")
+            return None, "inactive"
         if not verify_secret(password, user.get("password_hash"), user.get("password_salt"), user.get("password_iterations")):
-            raise Unauthorized("Invalid credentials")
+            return None, "bad_password"
+        return user, None
 
+    def _issue_session(self, user: dict, user_agent: str | None, ip: str | None) -> dict:
         token = secrets.token_urlsafe(32)
         token_hash = hash_token(token)
         expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_TTL_DAYS)

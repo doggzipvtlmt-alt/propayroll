@@ -45,3 +45,12 @@ iwr -Method Get `
 - Notifications: `GET /api/notifications`, `PUT /api/notifications/{id}/read`, `PUT /api/notifications/read-all`
 - Vault: `GET/POST /api/vault`, `GET/PUT/DELETE /api/vault/{id}`, `PUT /api/vault/{id}/reset-secret`
 - Audit Logs: `GET /api/audit`
+
+## Login example (PowerShell Invoke-RestMethod)
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "https://propayroll.onrender.com/api/auth/login" `
+  -ContentType "application/json" `
+  -Body '{"email":"hr@doggzi.com","password":"Hr@12345"}'
+```
