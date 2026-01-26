@@ -6,6 +6,7 @@ load_dotenv()
 class Settings:
     APP_NAME: str = os.getenv("APP_NAME", "HRMS 0.1")
     ENV: str = os.getenv("ENV", "local")  # local/dev/prod
+    DEV_MODE: bool = os.getenv("DEV_MODE", "false").lower() == "true"
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     FRONTEND_ORIGIN: str = os.getenv("FRONTEND_ORIGIN", "*")
 

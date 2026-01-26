@@ -3,7 +3,6 @@ import secrets
 from app.core.crypto import verify_secret
 from app.core.errors import Unauthorized, NotFound
 from app.core.security import hash_token
-from app.repositories.employees_repo import EmployeesRepo
 from app.repositories.sessions_repo import SessionsRepo
 from app.repositories.users_repo import UsersRepo
 
@@ -12,23 +11,23 @@ SESSION_TTL_DAYS = 7
 
 
 class AuthService:
-    def login(self, company_id: str, identifier: str, dob_or_pin: str, user_agent: str | None, ip: str | None):
-        user = self._find_user(company_id, identifier)
+    def login(self, email: str, password: str, user_agent: str | None, ip: str | None):
+        user = self._find_user(email)
         if not user:
+            raise Unauthorized("Invalid credentials")
+        if not user.get("company_id") or not user.get("role_key"):
+            raise Unauthorized("Invalid credentials")
+        if not user.get("password_hash") or not user.get("password_salt"):
             raise Unauthorized("Invalid credentials")
         if user.get("status") != "active":
             raise Unauthorized("User is inactive")
-
-        if user.get("dob") and dob_or_pin == user.get("dob"):
-            pass
-        elif verify_secret(dob_or_pin, user.get("pin_hash"), user.get("pin_salt"), user.get("pin_iterations")):
-            pass
-        else:
+        if not verify_secret(password, user.get("password_hash"), user.get("password_salt"), user.get("password_iterations")):
             raise Unauthorized("Invalid credentials")
 
         token = secrets.token_urlsafe(32)
         token_hash = hash_token(token)
         expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_TTL_DAYS)
+        company_id = user.get("company_id")
         SessionsRepo().create({
             "token_hash": token_hash,
             "company_id": company_id,
@@ -43,6 +42,7 @@ class AuthService:
             "user": {
                 "id": user["id"],
                 "full_name": user.get("full_name"),
+                "email": user.get("email"),
                 "role_key": user.get("role_key", "EMPLOYEE"),
                 "company_id": company_id,
             },
@@ -60,20 +60,12 @@ class AuthService:
             raise NotFound("User not found")
         return self._sanitize(user)
 
-    def _find_user(self, company_id: str, identifier: str):
+    def _find_user(self, email: str):
         users_repo = UsersRepo()
-        if "@" in identifier:
-            return users_repo.find_by_email(company_id, identifier.lower())
-        employee = EmployeesRepo().find_by_code(company_id, identifier)
-        if not employee:
-            return None
-        user_id = employee.get("user_id")
-        if not user_id:
-            return None
-        return users_repo.get(str(user_id), company_id)
+        return users_repo.find_by_email_case_insensitive(email.strip())
 
     def _sanitize(self, doc: dict) -> dict:
         doc = {**doc}
-        for key in ["pin_hash", "pin_salt", "pin_iterations"]:
+        for key in ["pin_hash", "pin_salt", "pin_iterations", "password_hash", "password_salt", "password_iterations"]:
             doc.pop(key, None)
         return doc
