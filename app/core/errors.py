@@ -30,3 +30,11 @@ class InvalidPagination(AppError):
 class InvalidDate(AppError):
     status_code = 400
     code = "INVALID_DATE"
+
+class MissingHeader(AppError):
+    status_code = 400
+    code = "MISSING_HEADER"
+
+class Forbidden(AppError):
+    status_code = 403
+    code = "FORBIDDEN"

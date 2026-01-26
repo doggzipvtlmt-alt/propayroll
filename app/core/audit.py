@@ -6,9 +6,13 @@ from app.core.security import get_role
 def audit(request, action: str, entity_type: str, entity_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
     db = require_db()
     request_id = request.state.request_id if hasattr(request.state, "request_id") else "-"
+    company_id = getattr(request.state, "company_id", None)
+    user_id = getattr(request.state, "user_id", None)
     db.audit_logs.insert_one({
         "ts": datetime.now(timezone.utc).isoformat(),
         "request_id": request_id,
+        "company_id": company_id,
+        "actor_user_id": user_id,
         "actor_role": get_role(request),
         "action": action,
         "entity_type": entity_type,

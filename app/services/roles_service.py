@@ -1,56 +1,47 @@
 from pymongo.errors import DuplicateKeyError
 from app.core.errors import NotFound, Conflict
-from app.repositories.employees_repo import EmployeesRepo
-from app.core.audit import audit
 from app.core.security import require_company_id, require_user_id
+from app.core.audit import audit
+from app.repositories.roles_repo import RolesRepo
 
-class EmployeesService:
-    def list(self, request, query: dict, skip: int, limit: int, sort):
+class RolesService:
+    def list(self, request, query: dict, skip: int, limit: int):
         company_id = require_company_id(request)
         require_user_id(request)
         query = {**query, "company_id": company_id}
-        repo = EmployeesRepo()
-        items = repo.list(query, skip, limit, sort)
+        repo = RolesRepo()
+        items = repo.list(query, skip, limit)
         total = repo.count(query)
         return items, total
-
-    def get(self, request, id: str):
-        company_id = require_company_id(request)
-        require_user_id(request)
-        repo = EmployeesRepo()
-        doc = repo.get(id, company_id)
-        if not doc:
-            raise NotFound("Employee not found")
-        return doc
 
     def create(self, request, data: dict):
         company_id = require_company_id(request)
         require_user_id(request)
         data["company_id"] = company_id
-        repo = EmployeesRepo()
+        repo = RolesRepo()
         try:
             doc = repo.create(data)
         except DuplicateKeyError:
-            raise Conflict("employee_code already exists", {"field": "employee_code"})
-        audit(request, "CREATE", "employee", doc["id"], {"employee_code": doc.get("employee_code")})
+            raise Conflict("Role key already exists", {"field": "key"})
+        audit(request, "CREATE", "role", doc["id"], {"key": doc.get("key")})
         return doc
 
     def update(self, request, id: str, data: dict):
         company_id = require_company_id(request)
         require_user_id(request)
-        repo = EmployeesRepo()
+        repo = RolesRepo()
         matched, doc = repo.update(id, company_id, data)
         if matched == 0 or not doc:
-            raise NotFound("Employee not found")
-        audit(request, "UPDATE", "employee", id, {"employee_code": doc.get("employee_code")})
+            raise NotFound("Role not found")
+        audit(request, "UPDATE", "role", id, {"key": doc.get("key")})
         return doc
 
     def delete(self, request, id: str):
         company_id = require_company_id(request)
         require_user_id(request)
-        repo = EmployeesRepo()
+        repo = RolesRepo()
         deleted = repo.delete(id, company_id)
         if deleted == 0:
-            raise NotFound("Employee not found")
-        audit(request, "DELETE", "employee", id)
+            raise NotFound("Role not found")
+        audit(request, "DELETE", "role", id)
         return True
