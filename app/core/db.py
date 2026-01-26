@@ -20,6 +20,8 @@ def connect():
     return db
 
 def ping() -> bool:
+    if _client is None:
+        return False
     try:
         _client.admin.command("ping")
         return True
@@ -27,6 +29,8 @@ def ping() -> bool:
         return False
 
 def ensure_indexes():
+    if db is None:
+        raise DatabaseDown("Database not connected")
     # employees unique employee_code
     db.employees.create_index([("company_id", ASCENDING), ("employee_code", ASCENDING)], unique=True)
     db.employees.create_index([("department", ASCENDING)])
