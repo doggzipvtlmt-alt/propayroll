@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doggzi Office OS</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__logo">Doggzi</span>
+        <span class="brand__sub">Office Operations System</span>
+      </div>
+      <nav class="app-nav">
+        <a href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+        <a href="/redoc" target="_blank" rel="noreferrer">Redoc</a>
+        <a href="/health" target="_blank" rel="noreferrer">Health</a>
+      </nav>
+    </header>
+
+    <main class="app-grid">
+      <section class="card">
+        <h1>Welcome to Doggzi Office OS</h1>
+        <p class="muted">
+          This portal connects HR, Finance, and leadership workflows with audit-ready approvals.
+          Use the quick actions on the right to authenticate or request access.
+        </p>
+        <div class="status-panel">
+          <div>
+            <span class="label">Environment</span>
+            <span class="value" id="env-label">Production-ready</span>
+          </div>
+          <div>
+            <span class="label">API Base</span>
+            <span class="value" id="api-base">/api</span>
+          </div>
+          <div>
+            <span class="label">JWT Token</span>
+            <span class="value" id="token-status">Not authenticated</span>
+          </div>
+        </div>
+        <div class="cta-row">
+          <button class="primary" id="logout-btn" type="button">Logout</button>
+          <button class="secondary" id="clear-token-btn" type="button">Clear Token</button>
+        </div>
+        <div class="notice">
+          <strong>Tip:</strong> Maker/Superuser approvals are available in the admin dashboard and API.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Login</h2>
+        <form id="login-form">
+          <label>
+            Email
+            <input type="email" name="email" placeholder="user@doggzi.com" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Enter password" required />
+          </label>
+          <button class="primary" type="submit">Sign In</button>
+        </form>
+        <div class="form-result" id="login-result"></div>
+      </section>
+
+      <section class="card">
+        <h2>Signup Request</h2>
+        <form id="signup-form">
+          <label>
+            Full name
+            <input type="text" name="full_name" placeholder="Full name" required />
+          </label>
+          <label>
+            Email (@doggzi.com)
+            <input type="email" name="email" placeholder="name@doggzi.com" required />
+          </label>
+          <label>
+            Phone
+            <input type="tel" name="phone_number" placeholder="10-digit mobile" required />
+          </label>
+          <label>
+            Requested role
+            <select name="role_requested" required>
+              <option value="HR">HR</option>
+              <option value="MD">MD</option>
+              <option value="EMPLOYEE">Employee</option>
+              <option value="FINANCE">Finance</option>
+            </select>
+          </label>
+          <button class="primary" type="submit">Submit Request</button>
+        </form>
+        <div class="form-result" id="signup-result"></div>
+      </section>
+
+      <section class="card">
+        <h2>Quick Links</h2>
+        <ul class="link-list">
+          <li><a href="/api/auth/pending" target="_blank" rel="noreferrer">Pending Signups (Superuser)</a></li>
+          <li><a href="/api/hr/dashboard" target="_blank" rel="noreferrer">HR Dashboard</a></li>
+          <li><a href="/api/finance/reports" target="_blank" rel="noreferrer">Finance Reports</a></li>
+          <li><a href="/api/workflows/appraisals" target="_blank" rel="noreferrer">Appraisals</a></li>
+        </ul>
+        <p class="muted small">
+          These endpoints require a valid JWT token. Use the login form to generate credentials and
+          store the access token locally.
+        </p>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>© 2025 Doggzi Pvt Ltd · Gurgaon, India</span>
+      <span class="muted">Enterprise Office Operations System</span>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import render
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,16 +12,15 @@ from core.excel import workbook_from_rows, excel_response, load_rows_from_upload
 from accounts.permissions import MakerOnly
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
 def root_view(request):
-    return Response({'name': 'Doggzi Office OS API', 'status': 'ok'})
+    accept_header = request.headers.get('accept', '')
+    if 'text/html' in accept_header:
+        return render(request, 'index.html')
+    return JsonResponse({'name': 'Doggzi Office OS API', 'status': 'ok'})
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
 def health_view(request):
-    return Response({'status': 'healthy'})
+    return JsonResponse({'status': 'healthy'})
 
 
 class TemplateDownloadView(APIView):

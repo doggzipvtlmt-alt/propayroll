@@ -1,0 +1,210 @@
+:root {
+  color-scheme: light;
+  --primary: #0f2b5b;
+  --primary-strong: #0b2043;
+  --accent: #15489c;
+  --surface: #ffffff;
+  --muted: #f1f3f6;
+  --border: #d6dbe2;
+  --text: #1b2430;
+  --text-muted: #5f6b7a;
+  --success: #1c7c54;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f7f8fb;
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.app-header {
+  background: var(--primary);
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 4px solid var(--accent);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brand__logo {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brand__sub {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.app-nav {
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+}
+
+.app-nav a {
+  color: #f1f5ff;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 32px 40px 48px;
+  flex: 1;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 12px 24px rgba(15, 43, 91, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card h1,
+.card h2 {
+  color: var(--primary);
+}
+
+.muted {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.small {
+  font-size: 13px;
+}
+
+.status-panel {
+  display: grid;
+  gap: 12px;
+  background: var(--muted);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.status-panel .label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-panel .value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button.primary,
+button.secondary {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+button.primary {
+  background: var(--primary);
+  color: white;
+}
+
+button.primary:hover {
+  background: var(--primary-strong);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+input,
+select {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-result {
+  min-height: 22px;
+  font-size: 13px;
+  color: var(--success);
+}
+
+.notice {
+  background: rgba(21, 72, 156, 0.08);
+  border-left: 4px solid var(--accent);
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.link-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-footer {
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
