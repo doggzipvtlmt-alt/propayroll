@@ -12,6 +12,7 @@ Production-ready HRMS/Office OS backend for Doggzi Pvt Ltd using Django, DRF, an
 - Excel export/import for list endpoints
 - Swagger and Redoc documentation
 - MongoDB Atlas (pymongo) with startup checks and indexes
+- Built-in web UI for login and signup requests at `/`
 
 ## Setup
 ```bash
@@ -49,9 +50,11 @@ python manage.py seed_maker
 ```
 
 ## Render Deployment
-- **Build command:** `pip install -r requirements.txt`
+- **Build command:** `pip install -r requirements.txt && python manage.py collectstatic --noinput`
 - **Start command:** `gunicorn office_os.wsgi:application`
 - Ensure `.env` variables are configured in Render dashboard.
+- The root path `/` serves the web UI and `/static` assets via WhiteNoise.
+- Optional: use `render.yaml` in this repo to bootstrap Render service creation.
 
 ## API Documentation
 - Swagger: `GET /docs`
