@@ -81,7 +81,7 @@ class EmployeeDetailView(APIView):
 
 class EmployeeApprovalView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'FINANCE', 'MD', 'MAKER'}
+    allowed_roles = {'FINANCE', 'MD', 'MAKER', 'SUPERUSER'}
 
     def post(self, request, employee_id):
         employees = get_collection('employees')
@@ -93,7 +93,7 @@ class EmployeeApprovalView(APIView):
             next_stage = 'MD_REVIEW'
         elif role == 'MD' and employee.get('approval_stage') == 'MD_REVIEW':
             next_stage = 'MAKER_REVIEW'
-        elif role in {'MAKER', 'MD'}:
+        elif role in {'MAKER', 'MD', 'SUPERUSER'}:
             next_stage = 'APPROVED'
         else:
             return Response({'error': 'Not allowed at this stage.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -109,7 +109,7 @@ class EmployeeApprovalView(APIView):
 
 class EmployeeRejectView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'FINANCE', 'MD', 'MAKER'}
+    allowed_roles = {'FINANCE', 'MD', 'MAKER', 'SUPERUSER'}
 
     def post(self, request, employee_id):
         reason = request.data.get('reason', 'Rejected')
@@ -140,7 +140,7 @@ class SalaryLimitView(APIView):
 
 class HRDashboardView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'HR', 'MAKER', 'MD', 'FINANCE'}
+    allowed_roles = {'HR', 'MAKER', 'MD', 'FINANCE', 'SUPERUSER'}
 
     def get(self, request):
         employees = get_collection('employees')

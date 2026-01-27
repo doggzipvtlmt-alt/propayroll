@@ -70,7 +70,7 @@ class BudgetView(APIView):
 
 class ReportExportView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'FINANCE', 'MAKER', 'MD'}
+    allowed_roles = {'FINANCE', 'MAKER', 'MD', 'SUPERUSER'}
 
     def get(self, request):
         report_type = request.query_params.get('type', 'summary')

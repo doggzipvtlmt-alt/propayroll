@@ -4,7 +4,7 @@ Production-ready HRMS/Office OS backend for Doggzi Pvt Ltd using Django, DRF, an
 
 ## Features
 - Approval-based onboarding with maker-only approvals
-- Role-based access: MAKER, HR, MD, EMPLOYEE, FINANCE
+- Role-based access: SUPERUSER, HR, MD, EMPLOYEE, FINANCE
 - HR employee onboarding with finance/MD/maker approvals
 - Appraisal and promotion workflows
 - Employee self-service module
@@ -31,17 +31,17 @@ DJANGO_ALLOWED_HOSTS=*
 CORS_ALLOW_ALL_ORIGINS=true
 
 MONGO_URI=mongodb+srv://doggzipvtlmt_db_user:<db_password>@cluster0.wpzevmb.mongodb.net/?appName=Cluster0
-MONGO_DB_NAME=propayroll
+MONGO_DB_NAME=doggzi_office_os
 
 JWT_ACCESS_MINUTES=60
 JWT_REFRESH_DAYS=7
 ```
 
-## Default Maker Seed
-On startup, the backend auto-seeds the MAKER user:
+## Default Superuser Seed
+On startup, the backend auto-seeds the SUPERUSER account:
 - Email: `abhiyash@doggzi.com`
 - Password: `211310`
-- Role: `MAKER`
+- Role: `SUPERUSER`
 
 You can also run:
 ```bash
@@ -71,9 +71,9 @@ python manage.py seed_maker
 ### Authentication
 - `POST /api/auth/signup`
 - `POST /api/auth/login`
-- `GET /api/auth/pending` (maker)
-- `POST /api/auth/approve/{request_id}` (maker)
-- `POST /api/auth/reject/{request_id}` (maker)
+- `GET /api/auth/pending` (superuser)
+- `POST /api/auth/approve/{request_id}` (superuser)
+- `POST /api/auth/reject/{request_id}` (superuser)
 
 ### HR
 - `GET/POST /api/hr/employees`
@@ -110,7 +110,7 @@ python manage.py seed_maker
 ## Role Permissions Matrix
 | Role | Permissions |
 |------|-------------|
-| MAKER | Approve/reject signup requests, set salary limits, override approvals, templates/imports |
+| SUPERUSER | Approve/reject signup requests, set salary limits, override approvals, templates/imports |
 | HR | Create and manage employee profiles, create appraisals/promotions |
 | MD | Approve employee onboarding, approve appraisals/promotions |
 | FINANCE | Approve employee onboarding, manage finance records |

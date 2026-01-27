@@ -20,8 +20,13 @@ class RoleAnyPermission(BasePermission):
         return request.user.role in set(roles)
 
 
-class MakerOnly(RolePermission):
-    required_role = 'MAKER'
+class MakerOnly(BasePermission):
+    allowed_roles = {'MAKER', 'SUPERUSER'}
+
+    def has_permission(self, request, view):
+        if not request.user or not getattr(request.user, 'is_authenticated', False):
+            return False
+        return request.user.role in self.allowed_roles
 
 
 class HROnly(RolePermission):
@@ -38,4 +43,3 @@ class FinanceOnly(RolePermission):
 
 class EmployeeOnly(RolePermission):
     required_role = 'EMPLOYEE'
-

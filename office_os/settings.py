@@ -115,7 +115,7 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'true').lower() == 'true'
 
 MONGO_URI = os.getenv('MONGO_URI')
-MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'propayroll')
+MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'doggzi_office_os')
 
 LOGGING = {
     'version': 1,
