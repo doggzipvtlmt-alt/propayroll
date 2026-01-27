@@ -15,7 +15,11 @@ class Settings:
         "mongodb+srv://doggzipvtlmt_db_user:Uunitech123@cluster0.wpzevmb.mongodb.net/?appName=Cluster0",
     )
     MONGO_DB: str = os.getenv("MONGO_DB", "doggzi_office_os")
-    MONGO_STARTUP_STRICT: bool = os.getenv("MONGO_STARTUP_STRICT", "true").lower() == "true"
+    _mongo_startup_strict = os.getenv("MONGO_STARTUP_STRICT")
+    if _mongo_startup_strict is None:
+        MONGO_STARTUP_STRICT: bool = ENV == "local"
+    else:
+        MONGO_STARTUP_STRICT: bool = _mongo_startup_strict.lower() == "true"
 
     REQUEST_TIMEOUT_MS: int = int(os.getenv("REQUEST_TIMEOUT_MS", "10000"))
 
