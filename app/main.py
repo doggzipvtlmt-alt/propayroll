@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
@@ -26,6 +28,7 @@ setup_logging()
 logger = get_logger("app")
 
 app = FastAPI(title=settings.APP_NAME, version="0.1")
+frontend_dir = Path(__file__).resolve().parent / "frontend"
 
 # CORS
 origins = ["*"] if settings.FRONTEND_ORIGIN.strip() == "*" else [o.strip() for o in settings.FRONTEND_ORIGIN.split(",")]
@@ -39,6 +42,9 @@ app.add_middleware(
 
 # Middleware
 app.add_middleware(RequestContextMiddleware)
+
+# Frontend
+app.mount("/ui", StaticFiles(directory=frontend_dir, html=True), name="ui")
 
 # Routers
 app.include_router(employees.router)
@@ -67,9 +73,12 @@ def on_startup():
     ensure_indexes()
     logger.info("Startup OK - Mongo connected and indexes ensured")
 
-@app.get("/", response_model=SuccessResponse)
-def root(request: Request):
-    return ok({"service": settings.APP_NAME}, request.state.request_id)
+@app.get("/")
+def root():
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    return JSONResponse({"service": settings.APP_NAME})
 
 @app.get("/health", response_model=SuccessResponse)
 def health(request: Request):
