@@ -3,7 +3,7 @@ from app.core.errors import Unauthorized
 from app.core.logging import get_logger
 from app.core.responses import ok
 from app.core.security import get_bearer_token, require_company_id, require_user_id
-from app.schemas.auth import LoginRequest
+from app.schemas.auth import LoginRequest, SignupRequest
 from app.schemas.response import SuccessResponse
 from app.services.auth_service import AuthService
 
@@ -28,6 +28,12 @@ def login(request: Request, payload: LoginRequest):
     if reason:
         raise Unauthorized("Invalid credentials")
     data = svc.login_with_user(user, user_agent, ip)
+    return ok(data, request.state.request_id)
+
+
+@router.post("/register", response_model=SuccessResponse)
+def register(request: Request, payload: SignupRequest):
+    data = svc.register(payload.model_dump())
     return ok(data, request.state.request_id)
 
 

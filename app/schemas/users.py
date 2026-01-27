@@ -19,4 +19,4 @@ class UserUpdate(BaseModel):
     pin: Optional[str] = Field(default=None, min_length=4, max_length=12)
 
 class UserStatusUpdate(BaseModel):
-    status: str = Field(pattern="^(active|inactive)$")
+    status: str = Field(pattern="^(active|inactive|PENDING_APPROVAL|REJECTED)$")

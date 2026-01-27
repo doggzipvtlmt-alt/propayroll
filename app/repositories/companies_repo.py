@@ -17,6 +17,10 @@ class CompaniesRepo:
         doc = self.db.companies.find_one({"_id": to_objectid(id)})
         return with_id(doc) if doc else None
 
+    def find_by_name(self, name: str):
+        doc = self.db.companies.find_one({"name": name})
+        return with_id(doc) if doc else None
+
     def create(self, data: dict):
         now = datetime.now(timezone.utc).isoformat()
         data["created_at"] = now

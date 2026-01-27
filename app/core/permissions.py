@@ -2,6 +2,7 @@ from fastapi import Request
 from app.core.errors import Forbidden
 
 ROLE_PERMISSIONS = {
+    "SUPERUSER": ["*"],
     "MD": ["*"],
     "HR": [
         "employees:*",
@@ -48,3 +49,9 @@ def require_permission(request: Request, permission: str) -> None:
     permissions = role_permissions(role)
     if not permission_allows(permissions, permission):
         raise Forbidden("You do not have permission to perform this action", {"permission": permission})
+
+
+def require_role(request: Request, required_role: str) -> None:
+    role = getattr(request.state, "role", "EMPLOYEE")
+    if role != required_role:
+        raise Forbidden("You do not have permission to perform this action", {"role": role})

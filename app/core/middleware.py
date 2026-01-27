@@ -15,6 +15,7 @@ PUBLIC_ALLOWLIST = {
     ("GET", "/"),
     ("GET", "/health"),
     ("POST", "/api/auth/login"),
+    ("POST", "/api/auth/register"),
 }
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
