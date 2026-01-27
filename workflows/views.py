@@ -41,7 +41,7 @@ class AppraisalSubmitView(APIView):
 
 class AppraisalApproveView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'FINANCE', 'MD', 'MAKER'}
+    allowed_roles = {'FINANCE', 'MD', 'MAKER', 'SUPERUSER'}
 
     def post(self, request, appraisal_id):
         appraisals = get_collection('appraisals')
@@ -52,6 +52,7 @@ class AppraisalApproveView(APIView):
             'FINANCE': 'FINANCE_APPROVED',
             'MD': 'MD_APPROVED',
             'MAKER': 'MAKER_APPROVED',
+            'SUPERUSER': 'MAKER_APPROVED',
         }
         next_status = status_map.get(request.user.role)
         appraisals.update_one(
@@ -80,14 +81,14 @@ class PromotionListCreateView(APIView):
 
 class PromotionApproveView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'MD', 'MAKER'}
+    allowed_roles = {'MD', 'MAKER', 'SUPERUSER'}
 
     def post(self, request, promotion_id):
         promotions = get_collection('promotions')
         promotion = promotions.find_one({'_id': ObjectId(promotion_id)})
         if not promotion:
             return Response({'error': 'Promotion not found.'}, status=status.HTTP_404_NOT_FOUND)
-        status_value = 'MAKER_APPROVED' if request.user.role == 'MAKER' else 'MD_APPROVED'
+        status_value = 'MAKER_APPROVED' if request.user.role in {'MAKER', 'SUPERUSER'} else 'MD_APPROVED'
         promotions.update_one(
             {'_id': promotion['_id']},
             {'$set': {'status': status_value, 'updated_at': datetime.utcnow()}},
@@ -97,7 +98,7 @@ class PromotionApproveView(APIView):
 
 class PromotionRejectView(APIView):
     permission_classes = [RoleAnyPermission]
-    allowed_roles = {'MD', 'MAKER'}
+    allowed_roles = {'MD', 'MAKER', 'SUPERUSER'}
 
     def post(self, request, promotion_id):
         reason = request.data.get('reason', 'Rejected')

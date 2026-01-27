@@ -58,11 +58,11 @@ def ensure_maker_user():
             'full_name': 'Abhiyash',
             'email': 'abhiyash@doggzi.com',
             'phone_number': '0000000000',
-            'role': 'MAKER',
+            'role': 'SUPERUSER',
             'status': 'ACTIVE',
             'password_hash': make_password('211310'),
             'created_at': datetime.utcnow(),
             'updated_at': datetime.utcnow(),
         }
     )
-    logger.info('Seeded maker user abhiyash@doggzi.com')
+    logger.info('Seeded superuser abhiyash@doggzi.com')
