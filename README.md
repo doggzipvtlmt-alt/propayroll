@@ -1,65 +1,122 @@
-# Propayroll Office OS Backend
+# Doggzi Office OS Backend (Django + DRF + MongoDB)
 
-## Local setup
+Production-ready HRMS/Office OS backend for Doggzi Pvt Ltd using Django, DRF, and MongoDB Atlas.
 
+## Features
+- Approval-based onboarding with maker-only approvals
+- Role-based access: MAKER, HR, MD, EMPLOYEE, FINANCE
+- HR employee onboarding with finance/MD/maker approvals
+- Appraisal and promotion workflows
+- Employee self-service module
+- Finance module with revenue/expense/payroll/budget entries
+- Excel export/import for list endpoints
+- Swagger and Redoc documentation
+- MongoDB Atlas (pymongo) with startup checks and indexes
+
+## Setup
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-export MONGO_URI="mongodb+srv://doggzipvtlmt_db_user:Uunitech123@cluster0.wpzevmb.mongodb.net/?appName=Cluster0"
-export MONGO_DB="doggzi_office_os"
-uvicorn app.main:app --reload
+cp .env.sample .env
+python manage.py runserver
 ```
 
-## Required headers (simulated identity)
+## Environment Variables
+Create a `.env` file in the project root:
+```env
+DJANGO_SECRET_KEY=replace-me
+DJANGO_DEBUG=true
+DJANGO_ALLOWED_HOSTS=*
+CORS_ALLOW_ALL_ORIGINS=true
 
-All tenant-scoped endpoints expect these headers:
+MONGO_URI=mongodb+srv://doggzipvtlmt_db_user:<db_password>@cluster0.wpzevmb.mongodb.net/?appName=Cluster0
+MONGO_DB_NAME=propayroll
 
-- `X-COMPANY-ID`: Company ID string
-- `X-USER-ID`: User ID string
-- `X-ROLE`: Role key (MD, HR, FINANCE, ADMIN, EMPLOYEE). Defaults to `EMPLOYEE`.
-
-### PowerShell example (Invoke-WebRequest)
-
-```powershell
-iwr -Method Get `
-  -Uri http://localhost:8000/api/employees?page=1&page_size=10 `
-  -Headers @{
-    "X-COMPANY-ID" = "<company_id>"
-    "X-USER-ID" = "<user_id>"
-    "X-ROLE" = "HR"
-  }
+JWT_ACCESS_MINUTES=60
+JWT_REFRESH_DAYS=7
 ```
 
-## Key endpoints
+## Default Maker Seed
+On startup, the backend auto-seeds the MAKER user:
+- Email: `abhiyash@doggzi.com`
+- Password: `211310`
+- Role: `MAKER`
 
-- Employees: `GET/POST/PUT/DELETE /api/employees`
-- Leaves: `GET/POST /api/leaves`, `PUT /api/leaves/{id}/approve|reject`
-- Attendance: `GET/POST /api/attendance`
-- Dashboard: `GET /api/dashboard/summary`
-- Meta: `GET /api/meta/departments|designations|leave-types`
-- Companies: `GET/POST/PUT /api/companies`
-- Roles: `GET/POST/PUT/DELETE /api/roles`
-- Users: `GET/POST/PUT /api/users`, `PATCH /api/users/{id}/status`
-- Approvals: `GET/POST /api/approvals`, `PUT /api/approvals/{id}/approve|reject`
-- Notifications: `GET /api/notifications`, `PUT /api/notifications/{id}/read`, `PUT /api/notifications/read-all`
-- Vault: `GET/POST /api/vault`, `GET/PUT/DELETE /api/vault/{id}`, `PUT /api/vault/{id}/reset-secret`
-- Audit Logs: `GET /api/audit`
-
-## Login example (PowerShell Invoke-RestMethod)
-
-```powershell
-Invoke-RestMethod -Method Post `
-  -Uri "https://propayroll.onrender.com/api/auth/login" `
-  -ContentType "application/json" `
-  -Body '{"email":"hr@doggzi.com","password":"Hr@12345"}'
-
-## Signup example (PowerShell Invoke-RestMethod)
-
-```powershell
-Invoke-RestMethod -Method Post `
-  -Uri "https://propayroll.onrender.com/api/auth/register" `
-  -ContentType "application/json" `
-  -Body '{"full_name":"Neha Doggzi","email":"neha@doggzi.com","phone":"+91-99999-11111","role_requested":"HR"}'
+You can also run:
+```bash
+python manage.py seed_maker
 ```
-```
+
+## Render Deployment
+- **Build command:** `pip install -r requirements.txt`
+- **Start command:** `gunicorn office_os.wsgi:application`
+- Ensure `.env` variables are configured in Render dashboard.
+
+## API Documentation
+- Swagger: `GET /docs`
+- Redoc: `GET /redoc`
+- OpenAPI schema: `GET /api/schema`
+
+## API Routes
+### Core
+- `GET /`
+- `GET /health`
+- `GET /api/schema`
+- `GET /docs`
+- `GET /redoc`
+- `GET /api/templates/{module}`
+- `POST /api/import/{module}`
+
+### Authentication
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/pending` (maker)
+- `POST /api/auth/approve/{request_id}` (maker)
+- `POST /api/auth/reject/{request_id}` (maker)
+
+### HR
+- `GET/POST /api/hr/employees`
+- `GET/PUT/DELETE /api/hr/employees/{employee_id}`
+- `POST /api/hr/employees/{employee_id}/approve` (finance/md/maker)
+- `POST /api/hr/employees/{employee_id}/reject` (finance/md/maker)
+- `POST /api/hr/salary-limits` (maker)
+- `GET /api/hr/dashboard`
+
+### Workflows
+- `GET/POST /api/workflows/appraisals`
+- `POST /api/workflows/appraisals/{appraisal_id}/submit` (hr)
+- `POST /api/workflows/appraisals/{appraisal_id}/approve` (finance/md/maker)
+- `GET/POST /api/workflows/promotions`
+- `POST /api/workflows/promotions/{promotion_id}/approve` (md/maker)
+- `POST /api/workflows/promotions/{promotion_id}/reject` (md/maker)
+
+### Employee Self-Service
+- `GET /api/employee/me`
+- `POST /api/employee/documents`
+- `POST /api/employee/leave-requests`
+- `GET /api/employee/salary-slips`
+- `POST /api/employee/grievances`
+- `GET /api/employee/notices`
+- `GET /api/employee/surveys`
+
+### Finance
+- `GET/POST /api/finance/revenue`
+- `GET/POST /api/finance/expenses`
+- `GET/POST /api/finance/payroll`
+- `GET/POST /api/finance/budgets`
+- `GET /api/finance/reports`
+
+## Role Permissions Matrix
+| Role | Permissions |
+|------|-------------|
+| MAKER | Approve/reject signup requests, set salary limits, override approvals, templates/imports |
+| HR | Create and manage employee profiles, create appraisals/promotions |
+| MD | Approve employee onboarding, approve appraisals/promotions |
+| FINANCE | Approve employee onboarding, manage finance records |
+| EMPLOYEE | View profile, submit documents/leave/grievances, view notices/surveys |
+
+## Notes
+- All list endpoints support `?export=true` to download Excel reports.
+- MongoDB indexes are created automatically on startup.
+- Login returns JWT access/refresh tokens and user profile.
