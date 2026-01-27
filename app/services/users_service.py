@@ -19,6 +19,8 @@ class UsersService:
         company_id = require_company_id(request)
         require_user_id(request)
         data["company_id"] = company_id
+        if data.get("email"):
+            data["email"] = data["email"].strip().lower()
         pin = data.pop("pin", None)
         if pin:
             pin_meta = hash_secret(pin)

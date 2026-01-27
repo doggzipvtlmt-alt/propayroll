@@ -6,8 +6,8 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-export MONGO_URI="mongodb://localhost:27017"
-export MONGO_DB="hrms"
+export MONGO_URI="mongodb+srv://doggzipvtlmt_db_user:Uunitech123@cluster0.wpzevmb.mongodb.net/?appName=Cluster0"
+export MONGO_DB="doggzi_office_os"
 uvicorn app.main:app --reload
 ```
 
@@ -53,4 +53,13 @@ Invoke-RestMethod -Method Post `
   -Uri "https://propayroll.onrender.com/api/auth/login" `
   -ContentType "application/json" `
   -Body '{"email":"hr@doggzi.com","password":"Hr@12345"}'
+
+## Signup example (PowerShell Invoke-RestMethod)
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "https://propayroll.onrender.com/api/auth/register" `
+  -ContentType "application/json" `
+  -Body '{"full_name":"Neha Doggzi","email":"neha@doggzi.com","phone":"+91-99999-11111","role_requested":"HR"}'
+```
 ```

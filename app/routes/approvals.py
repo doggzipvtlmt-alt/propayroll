@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Query
-from app.core.permissions import require_permission
+from app.core.permissions import require_permission, require_role
 from app.core.responses import ok
 from app.schemas.response import SuccessResponse
 from app.schemas.approvals import ApprovalCreate, ApprovalDecision
@@ -39,7 +39,9 @@ def create_approval(request: Request, payload: ApprovalCreate):
 def approve_approval(request: Request, id: str, payload: ApprovalDecision):
     company_id = require_company_id(request)
     approval = ApprovalsRepo().get(id, company_id)
-    if approval and approval.get("entity_type") == "leave":
+    if approval and approval.get("entity_type") == "user_signup":
+        require_role(request, "SUPERUSER")
+    elif approval and approval.get("entity_type") == "leave":
         require_permission(request, "leaves:approve")
     else:
         require_permission(request, "admin:write")
@@ -50,7 +52,9 @@ def approve_approval(request: Request, id: str, payload: ApprovalDecision):
 def reject_approval(request: Request, id: str, payload: ApprovalDecision):
     company_id = require_company_id(request)
     approval = ApprovalsRepo().get(id, company_id)
-    if approval and approval.get("entity_type") == "leave":
+    if approval and approval.get("entity_type") == "user_signup":
+        require_role(request, "SUPERUSER")
+    elif approval and approval.get("entity_type") == "leave":
         require_permission(request, "leaves:approve")
     else:
         require_permission(request, "admin:write")

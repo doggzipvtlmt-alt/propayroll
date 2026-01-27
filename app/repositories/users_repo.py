@@ -43,3 +43,15 @@ class UsersRepo:
         data = {"status": status, "updated_at": datetime.now(timezone.utc).isoformat()}
         res = self.db.users.update_one({"_id": to_objectid(id), "company_id": company_id}, {"$set": data})
         return res.matched_count, self.get(id, company_id)
+
+    def set_credentials(self, id: str, company_id: str, status: str, role_key: str, password_meta: dict):
+        data = {
+            "status": status,
+            "role_key": role_key,
+            "password_hash": password_meta.get("hash"),
+            "password_salt": password_meta.get("salt"),
+            "password_iterations": password_meta.get("iterations"),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        res = self.db.users.update_one({"_id": to_objectid(id), "company_id": company_id}, {"$set": data})
+        return res.matched_count, self.get(id, company_id)

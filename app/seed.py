@@ -16,11 +16,12 @@ def ensure_company(db):
         "legal_name": "Doggzi Private Limited",
         "gstin": "29ABCDE1234F1Z5",
         "pan": "ABCDE1234F",
-        "address": "Bengaluru, India",
+        "address": "Gurgaon, India",
         "phone": "+91-99999-00000",
-        "email": "contact@doggzi.example",
+        "email": "contact@doggzi.com",
         "currency": "INR",
         "timezone": "Asia/Kolkata",
+        "jurisdiction": "Gurgaon, India",
         "created_at": now_iso(),
         "updated_at": now_iso(),
     }
@@ -189,6 +190,7 @@ def main():
     hr_user = ensure_user(db, company_id, "Harsha HR", "hr@doggzi.com", "HR", password="Hr@12345")
     finance_user = ensure_user(db, company_id, "Finley Finance", "finance@doggzi.com", "FINANCE", password="Fin@12345")
     admin_user = ensure_user(db, company_id, "Aarav Admin", "admin@doggzi.com", "ADMIN", password="Admin@12345")
+    super_user = ensure_user(db, company_id, "Abhiyash Superuser", "abhiyash@doggzi.com", "SUPERUSER", password="211310")
     emp_one = ensure_user(db, company_id, "Esha Employee", "emp1@doggzi.com", "EMPLOYEE", password="Emp@12345")
     emp_two = ensure_user(db, company_id, "Ravi Employee", "emp2@doggzi.com", "EMPLOYEE", password="Emp@12345")
 
@@ -215,6 +217,7 @@ def main():
     print("HR: hr@doggzi.com / Hr@12345")
     print("FINANCE: finance@doggzi.com / Fin@12345")
     print("ADMIN: admin@doggzi.com / Admin@12345")
+    print("SUPERUSER: abhiyash@doggzi.com / 211310")
     print("EMPLOYEE1: emp1@doggzi.com / Emp@12345")
     print("EMPLOYEE2: emp2@doggzi.com / Emp@12345")
 
