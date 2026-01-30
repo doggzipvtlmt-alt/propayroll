@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Candidate Detail</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand">HRMS Panel</div>
+    <div class="nav-links">
+      <a href="/">Candidates</a>
+      <a class="active" href="#">Candidate Detail</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Candidate Summary</h2>
+      <div id="candidateSummary" class="summary-grid"></div>
+    </section>
+
+    <section class="card" id="onboardingSection">
+      <div class="card-header">
+        <h2>Onboarding Workflow</h2>
+        <span id="onboardingStatus" class="status-pill"></span>
+      </div>
+      <div id="lockOverlay" class="lock-overlay hidden">
+        <p>Locked until Selection Status = Selected.</p>
+      </div>
+
+      <div class="section">
+        <h3>Step 1: Employee Category</h3>
+        <form id="categoryForm">
+          <label><input type="radio" name="category" value="Formally Educated" /> Formally Educated</label>
+          <label><input type="radio" name="category" value="Non-Formally Educated" /> Non-Formally Educated</label>
+          <div id="formalOptions" class="inline-options hidden">
+            <label><input type="checkbox" name="has_pg" /> Has PG?</label>
+            <label><input type="checkbox" name="experienced" /> Experienced?</label>
+          </div>
+          <button type="submit">Save Category</button>
+          <span class="error" data-error-for="category"></span>
+        </form>
+      </div>
+
+      <div id="selfDeclarationSection" class="section hidden">
+        <h3>Self-Declaration Fields</h3>
+        <form id="selfDeclarationForm" class="grid">
+          <label>Name<input type="text" name="name" /></label>
+          <label>Age<input type="text" name="age" /></label>
+          <label>Address<input type="text" name="address" /></label>
+          <label>Skill/Work Type<input type="text" name="skill" /></label>
+          <label>Willingness<input type="text" name="willingness" /></label>
+          <label>Signature/Thumb<input type="text" name="signature" /></label>
+          <button type="submit">Save Self-Declaration</button>
+        </form>
+        <span class="error" data-error-for="self_declaration"></span>
+      </div>
+
+      <div class="section">
+        <h3>Document Checklist</h3>
+        <div id="checklist"></div>
+      </div>
+
+      <div class="section">
+        <label class="verification">
+          <input type="checkbox" id="verificationCheck" /> I have verified the above documents
+        </label>
+        <button id="finalSubmit">Final Onboarding Submit</button>
+        <div id="finalErrors" class="error-block"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/js/candidate.js"></script>
+</body>
+</html>
