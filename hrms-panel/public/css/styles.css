@@ -1,0 +1,211 @@
+:root {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #f4f6f8;
+  color: #1f2933;
+}
+
+body {
+  margin: 0;
+}
+
+.top-nav {
+  background: #1a365d;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 1rem;
+}
+
+.top-nav a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+input, select, textarea, button {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #cbd2d9;
+  font-size: 0.9rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  background: #1a365d;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+button.secondary {
+  background: #4a5568;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.error {
+  color: #c53030;
+  font-size: 0.8rem;
+  min-height: 1rem;
+}
+
+.error-block {
+  margin-top: 0.5rem;
+  color: #c53030;
+  font-size: 0.9rem;
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(226, 232, 240, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #2d3748;
+  z-index: 2;
+}
+
+.lock-overlay.hidden {
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: #1a365d;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.status-pill {
+  background: #edf2f7;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.inline-options {
+  display: flex;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.inline-options.hidden {
+  display: none;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.checklist-item .status {
+  font-weight: bold;
+}
+
+.checklist-item .status.missing {
+  color: #c53030;
+}
+
+.checklist-item .status.uploaded {
+  color: #2f855a;
+}
+
+.verification {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
