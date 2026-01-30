@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -15,9 +16,11 @@ from rest_framework import status
 from core.db import get_collection
 from core.excel import workbook_from_rows, excel_response, load_rows_from_upload
 from core.hrms import (
+    ATTENDANCE_FILE,
     CANDIDATES_FILE,
     ONBOARDING_FILE,
     append_row,
+    build_attendance_row,
     build_onboarding_row,
     candidate_exists,
     create_candidate_id,
@@ -326,3 +329,51 @@ class OnboardingCreateView(APIView):
         )
         append_row(ONBOARDING_FILE, row)
         return Response({'status': 'ok'}, status=status.HTTP_201_CREATED)
+
+
+class AttendanceListCreateView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        candidate_id = request.query_params.get("candidate_id")
+        rows = load_rows(ATTENDANCE_FILE)
+        if candidate_id:
+            rows = [row for row in rows if row.get("candidate_id") == candidate_id]
+        return Response({"attendance": rows})
+
+    def post(self, request):
+        required_fields = [
+            "candidate_id",
+            "attendance_date",
+            "status",
+        ]
+        data = request.data
+        missing = [field for field in required_fields if not str(data.get(field, "")).strip()]
+        if missing:
+            return Response(
+                {"error": f"Missing required fields: {', '.join(missing)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        candidate_id = str(data.get("candidate_id")).strip()
+        if not candidate_exists(candidate_id):
+            return Response({"error": "Candidate not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        allowed_status = {"Present", "Absent", "Leave", "Half Day", "Remote"}
+        status_value = str(data.get("status")).strip()
+        if status_value not in allowed_status:
+            return Response({"error": "Invalid attendance status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        attendance_id = f"ATT-{uuid4().hex[:8].upper()}"
+        row = build_attendance_row(
+            attendance_id=attendance_id,
+            candidate_id=candidate_id,
+            attendance_date=str(data.get("attendance_date")).strip(),
+            status=status_value,
+            check_in_time=str(data.get("check_in_time", "")).strip(),
+            check_out_time=str(data.get("check_out_time", "")).strip(),
+            shift=str(data.get("shift", "")).strip(),
+            notes=str(data.get("notes", "")).strip(),
+        )
+        append_row(ATTENDANCE_FILE, row)
+        return Response({"attendance_id": attendance_id}, status=status.HTTP_201_CREATED)
