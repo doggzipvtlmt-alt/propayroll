@@ -3,115 +3,257 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Doggzi Office OS</title>
+    <title>HRMS Candidate Tracking & Onboarding</title>
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
     <header class="app-header">
       <div class="brand">
-        <span class="brand__logo">Doggzi</span>
-        <span class="brand__sub">Office Operations System</span>
+        <span class="brand__logo">HRMS</span>
+        <span class="brand__sub">Candidate Tracking & Onboarding</span>
       </div>
-      <nav class="app-nav">
-        <a href="/docs" target="_blank" rel="noreferrer">API Docs</a>
-        <a href="/redoc" target="_blank" rel="noreferrer">Redoc</a>
-        <a href="/health" target="_blank" rel="noreferrer">Health</a>
-      </nav>
+      <div class="header-meta">
+        <span class="pill">Strict Validation Mode</span>
+        <span class="pill muted">Excel-backed</span>
+      </div>
     </header>
 
-    <main class="app-grid">
-      <section class="card">
-        <h1>Welcome to Doggzi Office OS</h1>
-        <p class="muted">
-          This portal connects HR, Finance, and leadership workflows with audit-ready approvals.
-          Use the quick actions on the right to authenticate or request access.
-        </p>
-        <div class="status-panel">
+    <main class="app-shell">
+      <section class="card" aria-labelledby="candidate-form-title">
+        <div class="card-header">
           <div>
-            <span class="label">Environment</span>
-            <span class="value" id="env-label">Production-ready</span>
+            <h1 id="candidate-form-title">Module 1: Candidate Interview & Tracking</h1>
+            <p class="muted">
+              All fields are mandatory. Conditional fields enable dynamically and will hard-block
+              submission if incomplete.
+            </p>
           </div>
-          <div>
-            <span class="label">API Base</span>
-            <span class="value" id="api-base">/api</span>
+          <div class="status-indicator" id="candidate-status">Awaiting submission</div>
+        </div>
+        <form id="candidate-form" novalidate>
+          <div class="grid two">
+            <label>
+              Candidate Name (Full Name)
+              <input type="text" name="candidate_name" required />
+            </label>
+            <label>
+              Mobile Number
+              <input type="tel" name="mobile_number" required />
+            </label>
+            <label>
+              Email ID
+              <input type="email" name="email" required />
+            </label>
+            <label>
+              Position Applied For
+              <select name="position_applied_for" required>
+                <option value="">Select</option>
+                <option>Kitchen Staff</option>
+                <option>Helper</option>
+                <option>Delivery Boy</option>
+                <option>Other</option>
+              </select>
+            </label>
+            <label>
+              Source
+              <select name="source" required>
+                <option value="">Select</option>
+                <option>Referral</option>
+                <option>Walk-in</option>
+                <option>Portal</option>
+                <option>Recruiter</option>
+              </select>
+            </label>
+            <fieldset class="inline">
+              <legend>Interview Scheduled</legend>
+              <label><input type="radio" name="interview_scheduled" value="Yes" required /> Yes</label>
+              <label><input type="radio" name="interview_scheduled" value="No" /> No</label>
+            </fieldset>
+            <label>
+              Interview Date
+              <input type="date" name="interview_date" disabled required />
+            </label>
+            <label>
+              Interview Status
+              <select name="interview_status" required>
+                <option value="">Select</option>
+                <option>Attended</option>
+                <option>Not Attended</option>
+                <option>Rescheduled</option>
+              </select>
+            </label>
+            <label>
+              Selection Status
+              <select name="selection_status" required>
+                <option value="">Select</option>
+                <option>Selected</option>
+                <option>Rejected</option>
+                <option>On Hold</option>
+              </select>
+            </label>
+            <fieldset class="inline">
+              <legend>Offer Released</legend>
+              <label><input type="radio" name="offer_released" value="Yes" required /> Yes</label>
+              <label><input type="radio" name="offer_released" value="No" /> No</label>
+            </fieldset>
+            <label>
+              Joining Date
+              <input type="date" name="joining_date" disabled required />
+            </label>
+            <label>
+              Final Status
+              <select name="final_status" required>
+                <option value="">Select</option>
+                <option>Joined</option>
+                <option>Dropped</option>
+                <option>Not Responding</option>
+              </select>
+            </label>
           </div>
-          <div>
-            <span class="label">JWT Token</span>
-            <span class="value" id="token-status">Not authenticated</span>
-          </div>
-        </div>
-        <div class="cta-row">
-          <button class="primary" id="logout-btn" type="button">Logout</button>
-          <button class="secondary" id="clear-token-btn" type="button">Clear Token</button>
-        </div>
-        <div class="notice">
-          <strong>Tip:</strong> Maker/Superuser approvals are available in the admin dashboard and API.
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Login</h2>
-        <form id="login-form">
           <label>
-            Email
-            <input type="email" name="email" placeholder="user@doggzi.com" required />
+            Remarks
+            <textarea name="remarks" rows="3" required></textarea>
           </label>
-          <label>
-            Password
-            <input type="password" name="password" placeholder="Enter password" required />
-          </label>
-          <button class="primary" type="submit">Sign In</button>
+          <div class="cta-row">
+            <button class="primary" type="submit">Save Candidate</button>
+            <button class="secondary" type="reset">Reset</button>
+          </div>
+          <div class="form-result" id="candidate-result"></div>
         </form>
-        <div class="form-result" id="login-result"></div>
       </section>
 
-      <section class="card">
-        <h2>Signup Request</h2>
-        <form id="signup-form">
-          <label>
-            Full name
-            <input type="text" name="full_name" placeholder="Full name" required />
+      <section class="card" aria-labelledby="onboarding-title" id="onboarding-card">
+        <div class="card-header">
+          <div>
+            <h2 id="onboarding-title">Module 2 & 3: Employee Onboarding</h2>
+            <p class="muted">Enabled only after a candidate is marked as Selected.</p>
+          </div>
+          <div class="status-indicator" id="onboarding-status">Locked</div>
+        </div>
+        <form id="onboarding-form" class="locked" novalidate>
+          <input type="hidden" name="candidate_id" id="candidate-id" />
+          <div class="grid two">
+            <label>
+              Candidate ID
+              <input type="text" id="candidate-id-display" disabled />
+            </label>
+            <fieldset class="inline">
+              <legend>Employee Category (Mandatory)</legend>
+              <label><input type="radio" name="category" value="formal" required /> Formally Educated</label>
+              <label><input type="radio" name="category" value="non_formal" /> Non-Formally Educated</label>
+            </fieldset>
+          </div>
+
+          <div class="category-block hidden" id="formal-section">
+            <h3>Formally Educated Uploads (Mandatory)</h3>
+            <div class="grid two">
+              <label>Aadhaar Card<input type="file" name="formal_aadhaar_card" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>PAN Card (Primary)<input type="file" name="formal_pan_card" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Address Proof (Aadhaar/Passport/Utility Bill)<input type="file" name="formal_address_proof" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Educational Certificates (multiple upload)<input type="file" name="formal_educational_certificates" accept=".pdf,.jpg,.jpeg,.png" multiple required /></label>
+              <label>10th &amp; 12th Marksheet<input type="file" name="formal_marksheet_10_12" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Graduation / Diploma<input type="file" name="formal_graduation_diploma" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Post-Graduation (if applicable)<input type="file" name="formal_post_graduation" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>Resume / CV<input type="file" name="formal_resume_cv" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Passport Size Photograph<input type="file" name="formal_passport_photo" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Bank Details (Cancelled Cheque/Passbook)<input type="file" name="formal_bank_details" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>PAN Card (Mandatory even if already uploaded)<input type="file" name="formal_pan_card_repeat" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <fieldset class="inline">
+                <legend>Experienced Employee?</legend>
+                <label><input type="radio" name="formal_experienced" value="Yes" required /> Yes</label>
+                <label><input type="radio" name="formal_experienced" value="No" /> No</label>
+              </fieldset>
+              <label>Offer Letter (Previous Employment)<input type="file" name="formal_offer_letter" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>Relieving / Experience Letter<input type="file" name="formal_experience_letter" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>Last 3 Salary Slips (multiple)<input type="file" name="formal_salary_slips" accept=".pdf,.jpg,.jpeg,.png" multiple /></label>
+              <label>Medical Fitness Certificate<input type="file" name="formal_medical_fitness" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+            </div>
+          </div>
+
+          <div class="category-block hidden" id="non-formal-section">
+            <h3>Non-Formally Educated Uploads (Mandatory)</h3>
+            <div class="grid two">
+              <label>Aadhaar Card<input type="file" name="non_aadhaar_card" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Address Proof (Aadhaar / Local Verification Letter)<input type="file" name="non_address_proof" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Passport Size Photograph<input type="file" name="non_passport_photo" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Bank Details (Passbook / Account Statement)<input type="file" name="non_bank_details" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Self-Declaration Form (upload)<input type="file" name="non_self_declaration" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Self-Declaration Name<input type="text" name="non_decl_name" required /></label>
+              <label>Self-Declaration Age<input type="number" name="non_decl_age" min="16" required /></label>
+              <label>Self-Declaration Address<input type="text" name="non_decl_address" required /></label>
+              <label>Skill / Work Type<input type="text" name="non_decl_skill" required /></label>
+              <label>Willingness to Work<input type="text" name="non_decl_willingness" required /></label>
+              <label>Signature / Thumb Impression<input type="text" name="non_decl_signature" required /></label>
+              <fieldset class="inline">
+                <legend>Skill / Experience Proof (select one)</legend>
+                <label><input type="radio" name="non_skill_proof_type" value="NGO Letter" required /> NGO Letter</label>
+                <label><input type="radio" name="non_skill_proof_type" value="Employer Letter" /> Employer Letter</label>
+                <label><input type="radio" name="non_skill_proof_type" value="Skill Assessment Sheet" /> Skill Assessment Sheet</label>
+                <label><input type="radio" name="non_skill_proof_type" value="Internal Trial Evaluation" /> Internal Trial Evaluation</label>
+              </fieldset>
+              <label>Skill / Experience Proof Upload<input type="file" name="non_skill_proof_file" accept=".pdf,.jpg,.jpeg,.png" required /></label>
+              <label>Medical Fitness Certificate (optional)<input type="file" name="non_medical_fitness" accept=".pdf,.jpg,.jpeg,.png" /></label>
+            </div>
+          </div>
+
+          <div class="category-block hidden" id="optional-section">
+            <h3>Optional Documents (Both Categories)</h3>
+            <div class="grid two">
+              <label>Police Verification Certificate<input type="file" name="opt_police_verification" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>PF / ESIC Details<input type="file" name="opt_pf_esic" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>Emergency Contact Details<input type="file" name="opt_emergency_contact" accept=".pdf,.jpg,.jpeg,.png" /></label>
+              <label>Signed Offer / Appointment Letter<input type="file" name="opt_signed_offer" accept=".pdf,.jpg,.jpeg,.png" /></label>
+            </div>
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" name="hr_verification" required />
+            HR Verification Completed (Required)
           </label>
           <label>
-            Email (@doggzi.com)
-            <input type="email" name="email" placeholder="name@doggzi.com" required />
+            Notes / Final Onboarding Status
+            <textarea name="final_notes" rows="2" required></textarea>
           </label>
-          <label>
-            Phone
-            <input type="tel" name="phone_number" placeholder="10-digit mobile" required />
-          </label>
-          <label>
-            Requested role
-            <select name="role_requested" required>
-              <option value="HR">HR</option>
-              <option value="MD">MD</option>
-              <option value="EMPLOYEE">Employee</option>
-              <option value="FINANCE">Finance</option>
-            </select>
-          </label>
-          <button class="primary" type="submit">Submit Request</button>
+          <div class="cta-row">
+            <button class="primary" type="submit">Submit Onboarding</button>
+            <button class="secondary" type="reset">Reset</button>
+          </div>
+          <div class="form-result" id="onboarding-result"></div>
         </form>
-        <div class="form-result" id="signup-result"></div>
       </section>
 
-      <section class="card">
-        <h2>Quick Links</h2>
-        <ul class="link-list">
-          <li><a href="/api/auth/pending" target="_blank" rel="noreferrer">Pending Signups (Superuser)</a></li>
-          <li><a href="/api/hr/dashboard" target="_blank" rel="noreferrer">HR Dashboard</a></li>
-          <li><a href="/api/finance/reports" target="_blank" rel="noreferrer">Finance Reports</a></li>
-          <li><a href="/api/workflows/appraisals" target="_blank" rel="noreferrer">Appraisals</a></li>
-        </ul>
-        <p class="muted small">
-          These endpoints require a valid JWT token. Use the login form to generate credentials and
-          store the access token locally.
-        </p>
+      <section class="card" aria-labelledby="table-title">
+        <div class="card-header">
+          <div>
+            <h2 id="table-title">Saved Candidates</h2>
+            <p class="muted">Auto-refreshes after every submission.</p>
+          </div>
+          <button class="secondary" id="refresh-table" type="button">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candidate ID</th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Interview</th>
+                <th>Selection</th>
+                <th>Offer</th>
+                <th>Joining Date</th>
+                <th>Final Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="candidates-table"></tbody>
+          </table>
+        </div>
       </section>
     </main>
 
     <footer class="app-footer">
-      <span>© 2025 Doggzi Pvt Ltd · Gurgaon, India</span>
-      <span class="muted">Enterprise Office Operations System</span>
+      <span>HRMS Candidate Tracking & Onboarding</span>
+      <span class="muted">Strict validation · Excel + Document storage</span>
     </footer>
 
     <script src="/static/js/app.js"></script>
