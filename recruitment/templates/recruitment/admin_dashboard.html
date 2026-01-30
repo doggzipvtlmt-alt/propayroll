@@ -1,0 +1,47 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Admin Dashboard ({{ today }})</h1>
+    <div class="metrics">
+        <div class="metric">
+            <span class="metric-label">Interviews Today</span>
+            <strong>{{ interviews_today }}</strong>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Confirmed</span>
+            <strong>{{ confirmed_today }}</strong>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Not Confirmed</span>
+            <strong>{{ not_confirmed_today }}</strong>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Selected</span>
+            <strong>{{ selected }}</strong>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Dropouts</span>
+            <strong>{{ dropouts }}</strong>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Joinings</span>
+            <strong>{{ joinings }}</strong>
+        </div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Status Snapshot</h2>
+    <div class="status-grid">
+        {% for item in status_counts %}
+            <div class="status-box">
+                <span class="status-pill {{ status_colors[item.status] }}">{{ item.status }}</span>
+                <strong>{{ item.total }}</strong>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

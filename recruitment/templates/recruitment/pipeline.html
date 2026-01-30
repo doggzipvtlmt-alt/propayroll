@@ -1,0 +1,80 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}Pipeline{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="header-row">
+        <div>
+            <h1>Pipeline</h1>
+            <p>Status filter aur quick update.</p>
+        </div>
+        <form method="get" class="inline-form">
+            <select name="status">
+                <option value="">All Status</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+
+    <div class="table">
+        <div class="table-row table-header">
+            <div>Candidate</div>
+            <div>Status</div>
+            <div>Interview</div>
+            <div>Update</div>
+        </div>
+        {% for candidate in candidates %}
+        <div class="table-row">
+            <div>
+                <strong>{{ candidate.name }}</strong>
+                <div class="muted">{{ candidate.phone }} · {{ candidate.area }} · {{ candidate.role }}</div>
+            </div>
+            <div>
+                <span class="status-pill {{ status_colors[candidate.status] }}">{{ candidate.get_status_display }}</span>
+            </div>
+            <div>
+                {% if candidate.interview_date %}
+                    <div>{{ candidate.interview_date }} {{ candidate.interview_time|default:"" }}</div>
+                {% else %}
+                    <div class="muted">Not scheduled</div>
+                {% endif %}
+                {% if candidate.id in reminder_ids %}
+                    <form method="post" action="{% url 'recruitment-send-reminder' candidate.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="small">Send 12hr Reminder</button>
+                    </form>
+                {% endif %}
+            </div>
+            <div>
+                <form method="post" class="stacked" action="{% url 'recruitment-update-status' candidate.id %}">
+                    {% csrf_token %}
+                    <label>
+                        Status
+                        <select name="status" required>
+                            {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if candidate.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Interview Date
+                        <input type="date" name="interview_date" value="{{ candidate.interview_date|date:'Y-m-d' }}">
+                    </label>
+                    <label>
+                        Interview Time
+                        <input type="time" name="interview_time" value="{{ candidate.interview_time|time:'H:i' }}">
+                    </label>
+                    <button type="submit" class="primary">Update</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty">No candidates yet.</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

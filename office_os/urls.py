@@ -15,6 +15,7 @@ from core.views import (
 urlpatterns = [
     path('', root_view, name='root'),
     path('health', health_view, name='health'),
+    path('recruitment/', include('recruitment.urls')),
     path('api/', include('accounts.urls')),
     path('api/', include('hr.urls')),
     path('api/', include('workflows.urls')),

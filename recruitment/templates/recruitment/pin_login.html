@@ -1,0 +1,21 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}{{ role|title }} Login{% endblock %}
+
+{% block content %}
+<section class="card narrow">
+    <h1>{{ role|title }} PIN</h1>
+    <p>Simple PIN se login karo. Default PINs: Interviewer 1234, HR 5678, Admin 9999.</p>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="post" class="form">
+        {% csrf_token %}
+        <label>
+            PIN
+            <input type="password" name="pin" required>
+        </label>
+        <button type="submit" class="primary">Login</button>
+    </form>
+</section>
+{% endblock %}

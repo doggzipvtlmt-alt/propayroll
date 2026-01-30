@@ -14,6 +14,67 @@ Production-ready HRMS/Office OS backend for Doggzi Pvt Ltd using Django, DRF, an
 - MongoDB Atlas (pymongo) with startup checks and indexes
 - Built-in web UI for login and signup requests at `/`
 
+## Recruitment & Interview Management (WhatsApp-first)
+### Architecture (brief)
+- **Django app:** `recruitment` with SQLite persistence.
+- **UI:** Simple server-rendered templates + mobile-friendly CSS.
+- **Roles:** Recruiter (intake + pipeline), Interviewer (today panel), HR (docs), Admin (dashboard).
+- **Automation:** Simulated WhatsApp logs stored in `WhatsAppMessage`.
+
+### Folder Structure
+```
+recruitment/
+  models.py
+  views.py
+  urls.py
+  utils.py
+  templates/recruitment/
+  static/recruitment/
+  management/commands/seed_recruitment.py
+```
+
+### Key URLs
+- `GET /recruitment/` → Home
+- `GET/POST /recruitment/intake` → Candidate intake form
+- `GET /recruitment/pipeline` → Pipeline view + status update
+- `GET/POST /recruitment/login/interviewer` → Interviewer PIN login
+- `GET /recruitment/interviewer/today` → Today’s interviews
+- `GET/POST /recruitment/login/hr` → HR PIN login
+- `GET /recruitment/hr/panel` → Selected candidates + documents
+- `GET/POST /recruitment/login/admin` → Admin PIN login
+- `GET /recruitment/admin/dashboard` → Daily metrics
+
+### Status Pipeline (fixed)
+```
+NEW
+→ INTERVIEW_SCHEDULED
+→ CONFIRMED
+→ INTERVIEW_DONE
+→ SELECTED / REJECTED / HOLD
+→ DOCUMENT_PENDING
+→ DOCUMENT_COMPLETED
+→ JOINED / DROPPED
+```
+
+### WhatsApp Message Templates (Simulated)
+- **Interview confirmation:** “Namaste {name}! {role} interview fix ho gaya hai...”
+- **12-hour reminder:** “Reminder: {name}, kal {date} {time} interview hai...”
+- **Document request:** “Shabash {name}! Aap select ho gaye...”
+
+### Sample Test Data
+Seed sample candidates:
+```bash
+python manage.py seed_recruitment
+```
+
+### PINs (Simple Login)
+Defaults (override in `.env`):
+```
+RECRUITMENT_INTERVIEWER_PIN=1234
+RECRUITMENT_HR_PIN=5678
+RECRUITMENT_ADMIN_PIN=9999
+```
+
 ## Setup
 ```bash
 python -m venv venv
@@ -55,6 +116,7 @@ python manage.py seed_maker
 - Ensure `.env` variables are configured in Render dashboard.
 - The root path `/` serves the web UI and `/static` assets via WhiteNoise.
 - Optional: use `render.yaml` in this repo to bootstrap Render service creation.
+- Recruitment module available at `/recruitment/`.
 
 ## API Documentation
 - Swagger: `GET /docs`

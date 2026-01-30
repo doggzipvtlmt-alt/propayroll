@@ -1,0 +1,46 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}Recruitment OS{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Quick Start</h1>
+    <p>Simple steps for recruiter, HR, and interviewer.</p>
+    <div class="grid">
+        <a class="tile" href="{% url 'recruitment-intake' %}">
+            <h3>1. Add Candidate</h3>
+            <p>Naam, phone, area, role, timing.</p>
+        </a>
+        <a class="tile" href="{% url 'recruitment-pipeline' %}">
+            <h3>2. Track Pipeline</h3>
+            <p>Status update + WhatsApp auto message.</p>
+        </a>
+        <a class="tile" href="{% url 'recruitment-pin' role='interviewer' %}">
+            <h3>3. Interviewer Today</h3>
+            <p>Sirf aaj ke interviews.</p>
+        </a>
+        <a class="tile" href="{% url 'recruitment-pin' role='hr' %}">
+            <h3>4. HR Documents</h3>
+            <p>Selected candidates ke docs.</p>
+        </a>
+        <a class="tile" href="{% url 'recruitment-pin' role='admin' %}">
+            <h3>5. Admin Dashboard</h3>
+            <p>Daily numbers.</p>
+        </a>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Status Pipeline</h2>
+    <div class="pipeline">
+        <span>🟢 NEW</span>
+        <span>→ 🟡 INTERVIEW_SCHEDULED</span>
+        <span>→ 🟡 CONFIRMED</span>
+        <span>→ 🟡 INTERVIEW_DONE</span>
+        <span>→ 🟢 SELECTED / 🔴 REJECTED / 🟡 HOLD</span>
+        <span>→ 🟡 DOCUMENT_PENDING</span>
+        <span>→ 🟢 DOCUMENT_COMPLETED</span>
+        <span>→ 🟢 JOINED / 🔴 DROPPED</span>
+    </div>
+</section>
+{% endblock %}

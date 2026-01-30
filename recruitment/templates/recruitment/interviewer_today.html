@@ -1,0 +1,28 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}Interviewer Panel{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Today's Interviews ({{ today }})</h1>
+    <p>Sirf aaj ke interviews dikh rahe hain. Select/Reject/Hold button दबाएं.</p>
+
+    <div class="grid">
+        {% for candidate in candidates %}
+        <div class="candidate-card">
+            <h3>{{ candidate.name }}</h3>
+            <p class="muted">{{ candidate.phone }} · {{ candidate.role }}</p>
+            <p>Time: {{ candidate.interview_time|default:"-" }}</p>
+            <form method="post" action="{% url 'recruitment-interviewer-action' candidate.id %}" class="button-row">
+                {% csrf_token %}
+                <button type="submit" name="action" value="select" class="primary">✅ Select</button>
+                <button type="submit" name="action" value="reject">❌ Reject</button>
+                <button type="submit" name="action" value="hold">🟡 Hold</button>
+            </form>
+        </div>
+        {% empty %}
+        <p class="empty">No interviews for today.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
