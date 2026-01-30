@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'workflows',
     'notifications',
     'audit',
+    'recruitment',
 ]
 
 MIDDLEWARE = [
@@ -119,6 +120,10 @@ CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'true').lower() == 
 
 MONGO_URI = os.getenv('MONGO_URI')
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'doggzi_office_os')
+
+RECRUITMENT_INTERVIEWER_PIN = os.getenv('RECRUITMENT_INTERVIEWER_PIN', '1234')
+RECRUITMENT_HR_PIN = os.getenv('RECRUITMENT_HR_PIN', '5678')
+RECRUITMENT_ADMIN_PIN = os.getenv('RECRUITMENT_ADMIN_PIN', '9999')
 
 LOGGING = {
     'version': 1,

@@ -1,0 +1,55 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}HR Panel{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Selected Candidates</h1>
+    <p>Documents status update करें. Aadhaar + Bank receive होते ही status Document Completed हो जाएगा.</p>
+
+    <div class="table">
+        <div class="table-row table-header">
+            <div>Candidate</div>
+            <div>Aadhaar</div>
+            <div>Bank</div>
+            <div>Join/Drop</div>
+        </div>
+        {% for candidate in candidates %}
+        <div class="table-row">
+            <div>
+                <strong>{{ candidate.name }}</strong>
+                <div class="muted">{{ candidate.phone }} · {{ candidate.role }}</div>
+                <span class="status-pill {{ status_colors[candidate.status] }}">{{ candidate.get_status_display }}</span>
+            </div>
+            <div>
+                <form method="post" action="{% url 'recruitment-hr-document' candidate.id %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="doc_type" value="aadhaar">
+                    <button type="submit" name="doc_status" value="RECEIVED" class="small">Received</button>
+                    <button type="submit" name="doc_status" value="PENDING" class="small">Pending</button>
+                </form>
+                <div class="muted">Current: {{ candidate.get_aadhaar_status_display }}</div>
+            </div>
+            <div>
+                <form method="post" action="{% url 'recruitment-hr-document' candidate.id %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="doc_type" value="bank">
+                    <button type="submit" name="doc_status" value="RECEIVED" class="small">Received</button>
+                    <button type="submit" name="doc_status" value="PENDING" class="small">Pending</button>
+                </form>
+                <div class="muted">Current: {{ candidate.get_bank_status_display }}</div>
+            </div>
+            <div>
+                <form method="post" action="{% url 'recruitment-hr-finalize' candidate.id %}" class="inline-form">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="joined" class="primary small">Joined</button>
+                    <button type="submit" name="action" value="dropped" class="small">Dropped</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty">No selected candidates yet.</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

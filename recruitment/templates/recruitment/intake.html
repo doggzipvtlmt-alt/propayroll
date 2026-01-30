@@ -1,0 +1,38 @@
+{% extends 'recruitment/base.html' %}
+
+{% block title %}New Candidate{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Candidate Intake</h1>
+    <p>Bas 5 cheezein भरें. Candidate ka status auto NEW hoga.</p>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <label>
+            Name
+            <input type="text" name="name" required>
+        </label>
+        <label>
+            Phone
+            <input type="text" name="phone" required>
+        </label>
+        <label>
+            Area / Location
+            <input type="text" name="area" required>
+        </label>
+        <label>
+            Role
+            <input type="text" name="role" required>
+        </label>
+        <label>
+            Availability
+            <select name="availability" required>
+                {% for value, label in availability_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit" class="primary">Save Candidate</button>
+    </form>
+</section>
+{% endblock %}
