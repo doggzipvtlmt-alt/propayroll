@@ -9,6 +9,8 @@
   --text: #1b2430;
   --text-muted: #5f6b7a;
   --success: #1c7c54;
+  --danger: #b42318;
+  --warning: #b54708;
 }
 
 * {
@@ -29,10 +31,6 @@ body {
 a {
   color: var(--accent);
   text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 .app-header {
@@ -62,19 +60,26 @@ a:hover {
   opacity: 0.85;
 }
 
-.app-nav {
+.header-meta {
   display: flex;
-  gap: 18px;
-  font-size: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.app-nav a {
-  color: #f1f5ff;
+.pill {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
 }
 
-.app-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.pill.muted {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   padding: 32px 40px 48px;
   flex: 1;
@@ -92,8 +97,17 @@ a:hover {
 }
 
 .card h1,
-.card h2 {
+.card h2,
+.card h3 {
   color: var(--primary);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .muted {
@@ -101,29 +115,69 @@ a:hover {
   line-height: 1.5;
 }
 
-.small {
+.status-indicator {
+  background: var(--muted);
+  color: var(--primary);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-indicator.locked {
+  background: rgba(181, 71, 8, 0.12);
+  color: var(--warning);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+label,
+legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+input,
+select,
+textarea {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+fieldset.inline {
+  border: 1px dashed var(--border);
+  padding: 12px;
+  border-radius: 8px;
+  gap: 8px;
+}
+
+fieldset.inline label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
   font-size: 13px;
 }
 
-.status-panel {
-  display: grid;
-  gap: 12px;
-  background: var(--muted);
-  padding: 16px;
-  border-radius: 10px;
-}
-
-.status-panel .label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.status-panel .value {
-  font-size: 14px;
+fieldset.inline legend {
   font-weight: 600;
+  color: var(--primary);
 }
 
 .cta-row {
@@ -157,54 +211,87 @@ button.secondary {
   border: 1px solid var(--primary);
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.form-result {
+  min-height: 22px;
   font-size: 13px;
-  color: var(--text-muted);
 }
 
-input,
-select {
-  padding: 10px 12px;
-  border-radius: 6px;
+.form-result.success {
+  color: var(--success);
+}
+
+.form-result.error {
+  color: var(--danger);
+}
+
+.locked {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.category-block {
   border: 1px solid var(--border);
-  font-size: 14px;
-}
-
-form {
+  border-radius: 10px;
+  padding: 16px;
+  background: #fafbff;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.form-result {
-  min-height: 22px;
-  font-size: 13px;
-  color: var(--success);
+.hidden {
+  display: none;
 }
 
-.notice {
-  background: rgba(21, 72, 156, 0.08);
-  border-left: 4px solid var(--accent);
-  padding: 12px 14px;
-  font-size: 13px;
-}
-
-.link-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th,
+td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.action-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .app-footer {
+  padding: 16px 40px;
   background: white;
   border-top: 1px solid var(--border);
-  padding: 16px 40px;
   display: flex;
   justify-content: space-between;
   font-size: 12px;
   color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 10px;
 }
