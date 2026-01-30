@@ -112,7 +112,7 @@ python manage.py seed_maker
 
 ## Render Deployment
 - **Build command:** `pip install -r requirements.txt && python manage.py collectstatic --noinput`
-- **Start command:** `gunicorn office_os.wsgi:application`
+- **Start command:** `python -m gunicorn office_os.wsgi:application --bind 0.0.0.0:$PORT`
 - Ensure `.env` variables are configured in Render dashboard.
 - The root path `/` serves the web UI and `/static` assets via WhiteNoise.
 - Optional: use `render.yaml` in this repo to bootstrap Render service creation.
