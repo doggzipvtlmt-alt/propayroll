@@ -50,8 +50,21 @@ ONBOARDING_HEADERS = (
     "submitted_at",
 )
 
+ATTENDANCE_HEADERS = (
+    "attendance_id",
+    "candidate_id",
+    "attendance_date",
+    "status",
+    "check_in_time",
+    "check_out_time",
+    "shift",
+    "notes",
+    "submitted_at",
+)
+
 CANDIDATES_FILE = ExcelConfig(DATA_DIR / "candidates.xlsx", CANDIDATE_HEADERS)
 ONBOARDING_FILE = ExcelConfig(DATA_DIR / "onboarding.xlsx", ONBOARDING_HEADERS)
+ATTENDANCE_FILE = ExcelConfig(DATA_DIR / "attendance.xlsx", ATTENDANCE_HEADERS)
 
 
 def ensure_workbook(config: ExcelConfig) -> None:
@@ -136,6 +149,30 @@ def build_onboarding_row(
         "final_onboarding_status": final_onboarding_status,
         "uploaded_documents": uploaded_documents,
         "optional_documents": optional_documents,
+        "notes": notes,
+        "submitted_at": datetime.utcnow().isoformat(),
+    }
+
+
+def build_attendance_row(
+    *,
+    attendance_id: str,
+    candidate_id: str,
+    attendance_date: str,
+    status: str,
+    check_in_time: str,
+    check_out_time: str,
+    shift: str,
+    notes: str,
+) -> dict:
+    return {
+        "attendance_id": attendance_id,
+        "candidate_id": candidate_id,
+        "attendance_date": attendance_date,
+        "status": status,
+        "check_in_time": check_in_time,
+        "check_out_time": check_out_time,
+        "shift": shift,
         "notes": notes,
         "submitted_at": datetime.utcnow().isoformat(),
     }

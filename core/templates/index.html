@@ -222,6 +222,87 @@
         </form>
       </section>
 
+      <section class="card" aria-labelledby="attendance-title" id="attendance-card">
+        <div class="card-header">
+          <div>
+            <h2 id="attendance-title">Module 4: Attendance Tracker</h2>
+            <p class="muted">Log daily attendance after onboarding is submitted.</p>
+          </div>
+          <div class="status-indicator" id="attendance-status">Ready</div>
+        </div>
+        <form id="attendance-form" novalidate>
+          <div class="grid two">
+            <label>
+              Candidate ID
+              <input type="text" name="candidate_id" id="attendance-candidate-id" required />
+            </label>
+            <label>
+              Attendance Date
+              <input type="date" name="attendance_date" required />
+            </label>
+            <label>
+              Status
+              <select name="status" required>
+                <option value="">Select</option>
+                <option>Present</option>
+                <option>Absent</option>
+                <option>Leave</option>
+                <option>Half Day</option>
+                <option>Remote</option>
+              </select>
+            </label>
+            <label>
+              Shift
+              <input type="text" name="shift" placeholder="Morning / Evening" />
+            </label>
+            <label>
+              Check-in Time
+              <input type="time" name="check_in_time" />
+            </label>
+            <label>
+              Check-out Time
+              <input type="time" name="check_out_time" />
+            </label>
+          </div>
+          <label>
+            Notes
+            <textarea name="notes" rows="2"></textarea>
+          </label>
+          <div class="cta-row">
+            <button class="primary" type="submit">Save Attendance</button>
+            <button class="secondary" type="reset">Reset</button>
+          </div>
+          <div class="form-result" id="attendance-result"></div>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="attendance-table-title">
+        <div class="card-header">
+          <div>
+            <h2 id="attendance-table-title">Attendance Log</h2>
+            <p class="muted">Track the latest attendance entries.</p>
+          </div>
+          <button class="secondary" id="refresh-attendance" type="button">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Attendance ID</th>
+                <th>Candidate ID</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Shift</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-table"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="card" aria-labelledby="table-title">
         <div class="card-header">
           <div>

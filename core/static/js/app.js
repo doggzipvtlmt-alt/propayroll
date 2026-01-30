@@ -9,8 +9,14 @@ const onboardingStatus = document.getElementById("onboarding-status");
 const onboardingCard = document.getElementById("onboarding-card");
 const candidateIdInput = document.getElementById("candidate-id");
 const candidateIdDisplay = document.getElementById("candidate-id-display");
+const attendanceForm = document.getElementById("attendance-form");
+const attendanceResult = document.getElementById("attendance-result");
+const attendanceStatus = document.getElementById("attendance-status");
+const attendanceCandidateId = document.getElementById("attendance-candidate-id");
+const attendanceTable = document.getElementById("attendance-table");
 const candidatesTable = document.getElementById("candidates-table");
 const refreshTableBtn = document.getElementById("refresh-table");
+const refreshAttendanceBtn = document.getElementById("refresh-attendance");
 
 const interviewScheduledInputs = document.querySelectorAll("input[name='interview_scheduled']");
 const interviewDateInput = document.querySelector("input[name='interview_date']");
@@ -25,6 +31,12 @@ const showResult = (element, message, isError = false) => {
   element.textContent = message;
   element.classList.remove("success", "error");
   element.classList.add(isError ? "error" : "success");
+};
+
+const setCandidateContext = (candidateId) => {
+  candidateIdInput.value = candidateId;
+  candidateIdDisplay.value = candidateId;
+  attendanceCandidateId.value = candidateId;
 };
 
 const setLocked = (locked) => {
@@ -155,10 +167,50 @@ const renderCandidates = (rows) => {
   });
 };
 
+const renderAttendance = (rows) => {
+  attendanceTable.innerHTML = "";
+  if (!rows.length) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = "<td colspan='8'>No attendance records yet.</td>";
+    attendanceTable.appendChild(emptyRow);
+    return;
+  }
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.attendance_id || ""}</td>
+      <td>${row.candidate_id || ""}</td>
+      <td>${row.attendance_date || ""}</td>
+      <td>${row.status || ""}</td>
+      <td>${row.check_in_time || ""}</td>
+      <td>${row.check_out_time || ""}</td>
+      <td>${row.shift || ""}</td>
+      <td>${row.notes || ""}</td>
+    `;
+    attendanceTable.appendChild(tr);
+  });
+};
+
 const loadCandidates = async () => {
   const response = await fetch(`${apiBase}/candidates`);
   const data = await response.json();
   renderCandidates(data.candidates || []);
+};
+
+const loadAttendance = async () => {
+  const response = await fetch(`${apiBase}/attendance`);
+  const data = await response.json();
+  renderAttendance(data.attendance || []);
+};
+
+const validateAttendanceForm = () => {
+  const requiredFields = attendanceForm.querySelectorAll("[required]");
+  for (const field of requiredFields) {
+    if (!field.value || !field.value.trim()) {
+      return `Please fill ${field.name.replace(/_/g, " ")}.`;
+    }
+  }
+  return "";
 };
 
 interviewScheduledInputs.forEach((input) => {
@@ -199,8 +251,7 @@ candidateForm.addEventListener("submit", async (event) => {
     }
     showResult(candidateResult, `Candidate saved. ID: ${data.candidate_id}`);
     candidateStatus.textContent = "Saved";
-    candidateIdInput.value = data.candidate_id;
-    candidateIdDisplay.value = data.candidate_id;
+    setCandidateContext(data.candidate_id);
     setLocked(payload.selection_status !== "Selected");
     await loadCandidates();
     candidateForm.reset();
@@ -238,21 +289,58 @@ onboardingForm.addEventListener("submit", async (event) => {
   updateCategorySections();
 });
 
+attendanceForm.addEventListener("reset", () => {
+  attendanceResult.textContent = "";
+});
+
+attendanceForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const validationMessage = validateAttendanceForm();
+  if (validationMessage) {
+    showResult(attendanceResult, validationMessage, true);
+    return;
+  }
+  attendanceStatus.textContent = "Saving...";
+  const formData = new FormData(attendanceForm);
+  const payload = Object.fromEntries(formData.entries());
+  try {
+    const response = await fetch(`${apiBase}/attendance`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      showResult(attendanceResult, data.error || "Attendance submission failed.", true);
+      attendanceStatus.textContent = "Submission failed";
+      return;
+    }
+    showResult(attendanceResult, `Attendance saved. ID: ${data.attendance_id}`);
+    attendanceStatus.textContent = "Saved";
+    attendanceForm.reset();
+    await loadAttendance();
+  } catch (error) {
+    showResult(attendanceResult, "Server unavailable. Please retry.", true);
+    attendanceStatus.textContent = "Submission failed";
+  }
+});
+
 candidatesTable.addEventListener("click", (event) => {
   const target = event.target;
   if (target.matches(".action-btn")) {
     const candidateId = target.getAttribute("data-candidate");
-    candidateIdInput.value = candidateId;
-    candidateIdDisplay.value = candidateId;
+    setCandidateContext(candidateId);
     setLocked(false);
     onboardingCard.scrollIntoView({ behavior: "smooth" });
   }
 });
 
 refreshTableBtn.addEventListener("click", loadCandidates);
+refreshAttendanceBtn.addEventListener("click", loadAttendance);
 
 updateInterviewDateState();
 updateJoiningDateState();
 updateCategorySections();
 setLocked(true);
 loadCandidates();
+loadAttendance();
